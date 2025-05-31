@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'face_id',
+        'is_face_enrolled',
+        'status',
     ];
 
     /**
@@ -41,5 +45,60 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_face_enrolled' => 'boolean',
     ];
+
+    /**
+     * Check if user is admin
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is regular user (satpam)
+     *
+     * @return bool
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Check if user has face enrolled
+     *
+     * @return bool
+     */
+    public function hasFaceEnrolled(): bool
+    {
+        return $this->is_face_enrolled && !empty($this->face_id);
+    }
+
+    /**
+     * Scope untuk active users
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope untuk admin users
+     */
+    public function scopeAdmin($query)
+    {
+        return $query->where('role', 'admin');
+    }
+
+    /**
+     * Scope untuk regular users
+     */
+    public function scopeRegularUser($query)
+    {
+        return $query->where('role', 'user');
+    }
 }
