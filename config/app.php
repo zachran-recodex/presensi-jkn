@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Presensi - PT Jaka Kuasa Nusantara'),
+    'name' => env('APP_NAME', 'Laravel'),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Jakarta',
+    'timezone' => 'UTC',
 
     /*
     |--------------------------------------------------------------------------
