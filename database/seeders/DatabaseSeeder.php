@@ -12,11 +12,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        $this->call([
+            LocationSeeder::class,
+            AdminUserSeeder::class,
+            SampleEmployeeSeeder::class,
+        ]);
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $this->command->info('');
+        $this->command->info('🎉 Database seeding completed!');
+        $this->command->info('');
+        $this->command->info('Next steps:');
+        $this->command->info('1. Run: php artisan migrate --seed');
+        $this->command->info('2. Setup Biznet Face API credentials in .env');
+        $this->command->info('3. Test login with admin credentials');
+        $this->command->info('4. Enroll employee faces through admin panel');
+        $this->command->info('');
     }
 }
