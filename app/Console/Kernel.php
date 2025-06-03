@@ -3,6 +3,11 @@
 namespace App\Console;
 
 use App\Jobs\CleanupOldFilesJob;
+use App\Models\Attendance;
+use App\Models\Employee;
+use App\Services\FaceRecognitionService;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
@@ -89,7 +94,7 @@ class Kernel extends ConsoleKernel
         // Weekly face recognition API quota check (runs every Monday at 9 AM)
         $schedule->call(function () {
             try {
-                $faceService = app(\App\Services\FaceRecognitionService::class);
+                $faceService = app(FaceRecognitionService::class);
                 $counters = $faceService->getCounters();
 
                 if (isset($counters['remaining_limit'])) {
@@ -109,7 +114,7 @@ class Kernel extends ConsoleKernel
                         ]);
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('Failed to check Face Recognition API quota: ' . $e->getMessage());
             }
         })
@@ -121,9 +126,9 @@ class Kernel extends ConsoleKernel
 
         // Daily attendance summary log (runs at 11 PM)
         $schedule->call(function () {
-            $today = \Carbon\Carbon::today();
-            $totalEmployees = \App\Models\Employee::active()->count();
-            $presentToday = \App\Models\Attendance::whereDate('attendance_date', $today)
+            $today = Carbon::today();
+            $totalEmployees = Employee::active()->count();
+            $presentToday = Attendance::whereDate('attendance_date', $today)
                 ->where('type', 'clock_in')
                 ->where('status', 'success')
                 ->count();
