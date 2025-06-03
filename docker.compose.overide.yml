@@ -1,0 +1,90 @@
+# Docker Compose Override for Development
+# File ini otomatis di-load oleh docker-compose untuk development environment
+
+version: '3.8'
+
+services:
+  app:
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - LOG_LEVEL=debug
+    volumes:
+      # Mount source code untuk development
+      - ./:/var/www/html:delegated
+      # Mount node_modules untuk performance
+      - /var/www/html/node_modules
+    ports:
+      # Expose additional ports untuk debugging
+      - "8000:80"
+      - "9000:9000"  # PHP-FPM untuk debugging
+
+  database:
+    environment:
+      # Development database settings
+      MYSQL_DATABASE: presensi_dev
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      # Expose MySQL port untuk database tools
+      - "3306:3306"
+    volumes:
+      # Use named volume untuk development (data persistence tapi tidak production critical)
+      - mysql_dev_data:/var/lib/mysql
+
+  redis:
+    ports:
+      # Expose Redis port untuk debugging tools
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    # Remove password untuk development ease
+
+  # Development tools
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: presensi_mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - presensi_network
+
+  # PHPMyAdmin untuk database management
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: presensi_phpmyadmin
+    environment:
+      PMA_HOST: database
+      PMA_USER: dev_user
+      PMA_PASSWORD: dev_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
+    networks:
+      - presensi_network
+
+  # Redis Commander untuk Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: presensi_redis_commander
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - presensi_network
+
+volumes:
+  mysql_dev_data:
+    driver: local
+
+# Override network settings if needed
+networks:
+  presensi_network:
+    driver: bridge

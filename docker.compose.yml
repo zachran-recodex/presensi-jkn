@@ -1,0 +1,163 @@
+version: '3.8'
+
+services:
+  # Laravel Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: presensi_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Fallback port untuk development/testing
+    volumes:
+      - ./:/var/www/html
+      - ./storage/app/public:/var/www/html/public/storage
+      - ./docker/nginx/logs:/var/log/nginx
+      - ./docker/supervisor/logs:/var/log/supervisor
+      - certbot_certs:/etc/letsencrypt  # SSL certificates
+      - certbot_www:/var/www/certbot    # Let's Encrypt challenges
+    environment:
+      - APP_ENV=production
+      - APP_URL=https://jakakuasanusantara.web.id
+      - DB_HOST=database
+      - DB_DATABASE=presensi_jkn
+      - DB_USERNAME=jkn_user
+      - DB_PASSWORD=Zachran#recodex15
+      - REDIS_HOST=redis
+      - QUEUE_CONNECTION=redis
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+    depends_on:
+      - database
+      - redis
+    networks:
+      - presensi_network
+
+  # Certbot untuk SSL certificate
+  certbot:
+    image: certbot/certbot:latest
+    container_name: presensi_certbot
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    command: echo "Certbot container ready for SSL certificate generation"
+    networks:
+      - presensi_network
+
+  # MySQL Database
+  database:
+    image: mysql:8.0
+    container_name: presensi_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: presensi_jkn
+      MYSQL_USER: jkn_user
+      MYSQL_PASSWORD: Zachran#recodex15
+      MYSQL_ROOT_PASSWORD: Zachran#recodex15
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - presensi_network
+
+  # Redis for Caching & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: presensi_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass "redis_password_jkn"
+    networks:
+      - presensi_network
+
+  # Queue Worker
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: presensi_queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - APP_ENV=production
+      - DB_HOST=database
+      - DB_DATABASE=presensi_jkn
+      - DB_USERNAME=jkn_user
+      - DB_PASSWORD=Zachran#recodex15
+      - REDIS_HOST=redis
+      - QUEUE_CONNECTION=redis
+    command: php artisan queue:work --verbose --tries=3 --timeout=300
+    depends_on:
+      - database
+      - redis
+    networks:
+      - presensi_network
+
+  # Scheduler (Cron Jobs)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: presensi_scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - APP_ENV=production
+      - DB_HOST=database
+      - DB_DATABASE=presensi_jkn
+      - DB_USERNAME=jkn_user
+      - DB_PASSWORD=Zachran#recodex15
+      - REDIS_HOST=redis
+    command: sh -c "while true; do php artisan schedule:run && sleep 60; done"
+    depends_on:
+      - database
+      - redis
+    networks:
+      - presensi_network
+
+  # Nginx (Optional - jika ingin terpisah)
+  # webserver:
+  #   image: nginx:alpine
+  #   container_name: presensi_nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./:/var/www/html
+  #     - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+  #     - ./docker/nginx/site.conf:/etc/nginx/conf.d/default.conf
+  #     - ./docker/ssl:/etc/nginx/ssl
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - presensi_network
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  certbot_certs:
+    driver: local
+  certbot_www:
+    driver: local
+
+networks:
+  presensi_network:
+    driver: bridge

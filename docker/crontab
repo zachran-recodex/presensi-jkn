@@ -1,0 +1,32 @@
+# Laravel Scheduler - runs every minute
+* * * * * www cd /var/www/html && php artisan schedule:run >> /var/log/cron.log 2>&1
+
+# Clean up old attendance photos - runs daily at 2 AM
+0 2 * * * www cd /var/www/html && php artisan attendance:cleanup-photos --days=90 >> /var/log/cron.log 2>&1
+
+# Weekly attendance data sync - runs every Sunday at 3 AM
+0 3 * * 0 www cd /var/www/html && php artisan attendance:sync --fix-missing --update-late >> /var/log/cron.log 2>&1
+
+# Monthly attendance report - runs on 1st day of month at 4 AM
+0 4 1 * * www cd /var/www/html && php artisan attendance:report monthly --export=csv >> /var/log/cron.log 2>&1
+
+# System health check - runs every hour
+0 * * * * www cd /var/www/html && php artisan system:health >> /var/log/cron.log 2>&1
+
+# Database optimization - runs daily at 5 AM
+0 5 * * * www cd /var/www/html && php artisan db:optimize >> /var/log/cron.log 2>&1
+
+# Clear expired sessions - runs daily at 6 AM
+0 6 * * * www cd /var/www/html && php artisan session:gc >> /var/log/cron.log 2>&1
+
+# Clear application cache weekly - runs every Sunday at 1 AM
+0 1 * * 0 www cd /var/www/html && php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache >> /var/log/cron.log 2>&1
+
+# Backup database daily at 1 AM
+0 1 * * * root /usr/bin/mysqldump -h database -u jkn_user -p'Zachran#recodex15' presensi_jkn > /var/backups/presensi_$(date +\%Y\%m\%d).sql 2>> /var/log/cron.log
+
+# Restart queue workers daily at 12 AM to prevent memory leaks
+0 0 * * * root /usr/bin/supervisorctl restart laravel-queue:* >> /var/log/cron.log 2>&1
+
+# Empty line required at end of crontab
+
