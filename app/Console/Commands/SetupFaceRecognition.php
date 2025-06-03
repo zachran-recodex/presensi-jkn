@@ -103,31 +103,70 @@ class SetupFaceRecognition extends Command
         try {
             $result = $faceService->getCounters();
 
-            if ($result['status'] === 'success') {
+            // Handle different response formats
+            if (isset($result['status']) && $result['status'] === 'success') {
                 $this->line('✅ API connection successful!');
                 $this->newLine();
                 $this->line('API Quota Information:');
-                $this->table(
-                    ['Metric', 'Remaining'],
-                    [
-                        ['API Hits', number_format($result['remaining_limit']['n_api_hits'] ?? 0)],
-                        ['Face Storage', number_format($result['remaining_limit']['n_face'] ?? 0)],
-                        ['Face Galleries', number_format($result['remaining_limit']['n_facegallery'] ?? 0)],
-                    ]
-                );
+
+                if (isset($result['remaining_limit'])) {
+                    $this->table(
+                        ['Metric', 'Remaining'],
+                        [
+                            ['API Hits', number_format($result['remaining_limit']['n_api_hits'] ?? 0)],
+                            ['Face Storage', number_format($result['remaining_limit']['n_face'] ?? 0)],
+                            ['Face Galleries', number_format($result['remaining_limit']['n_facegallery'] ?? 0)],
+                        ]
+                    );
+                } else {
+                    $this->line('Quota information not available in response');
+                }
+
                 return true;
-            } else {
+            } elseif (isset($result['status']) && $result['status'] !== 'success') {
                 $this->error('❌ API test failed: ' . ($result['status_message'] ?? 'Unknown error'));
+                $this->line('Response: ' . json_encode($result, JSON_PRETTY_PRINT));
+                return false;
+            } else {
+                // Response doesn't have expected format, but if we got here without exception, API is responding
+                $this->line('⚠️  API is responding but with unexpected format');
+                $this->line('Raw response: ' . json_encode($result, JSON_PRETTY_PRINT));
+
+                if ($this->confirm('Continue despite unexpected response format?', false)) {
+                    return true;
+                }
                 return false;
             }
 
         } catch (Exception $e) {
             $this->error('❌ API connection failed: ' . $e->getMessage());
             $this->newLine();
-            $this->line('Possible issues:');
-            $this->line('- Invalid access token');
-            $this->line('- Network connectivity problems');
-            $this->line('- API service temporarily unavailable');
+
+            // Provide more specific troubleshooting based on error
+            $errorMessage = $e->getMessage();
+
+            if (str_contains($errorMessage, 'Access token not authorized') || str_contains($errorMessage, '401')) {
+                $this->line('🔍 Troubleshooting:');
+                $this->line('- Check if your BIZNET_FACE_ACCESS_TOKEN is correct');
+                $this->line('- Verify token in Biznet Portal: https://portal.biznetgio.com');
+                $this->line('- Ensure the token hasn\'t expired');
+            } elseif (str_contains($errorMessage, 'Undefined array key') || str_contains($errorMessage, 'status')) {
+                $this->line('🔍 Analysis:');
+                $this->line('- API is responding but response format differs from documentation');
+                $this->line('- This might be due to API version differences');
+                $this->line('- Try checking the raw API response in logs');
+            } elseif (str_contains($errorMessage, 'Connection') || str_contains($errorMessage, 'timeout')) {
+                $this->line('🔍 Troubleshooting:');
+                $this->line('- Check internet connectivity');
+                $this->line('- Verify firewall settings');
+                $this->line('- Try again in a few minutes');
+            } else {
+                $this->line('🔍 General troubleshooting:');
+                $this->line('- Check .env configuration');
+                $this->line('- Verify API endpoint URL');
+                $this->line('- Review Laravel logs for detailed error info');
+            }
+
             return false;
         }
     }
@@ -144,22 +183,50 @@ class SetupFaceRecognition extends Command
         try {
             $result = $faceService->createFaceGallery($galleryId);
 
-            if ($result['status'] === 'success') {
+            if (isset($result['status']) && $result['status'] === 'success') {
                 $this->line('✅ Face gallery created successfully!');
                 return true;
-            } else {
-                // Gallery might already exist
-                if (str_contains($result['status_message'] ?? '', 'already exists')) {
+            } elseif (isset($result['status_message'])) {
+                // Check if gallery already exists
+                if (str_contains($result['status_message'], 'already exists') ||
+                    str_contains($result['status_message'], 'sudah ada')) {
                     $this->line('✅ Face gallery already exists');
                     return true;
                 }
 
-                $this->error('❌ Failed to create face gallery: ' . ($result['status_message'] ?? 'Unknown error'));
+                $this->error('❌ Failed to create face gallery: ' . $result['status_message']);
+                return false;
+            } else {
+                // Handle unexpected response format
+                $this->line('⚠️  Gallery creation response: ' . json_encode($result, JSON_PRETTY_PRINT));
+
+                if ($this->confirm('Assume gallery creation was successful?', true)) {
+                    $this->line('✅ Assuming face gallery was created/exists');
+                    return true;
+                }
                 return false;
             }
 
         } catch (Exception $e) {
-            $this->error('❌ Gallery creation failed: ' . $e->getMessage());
+            $errorMessage = $e->getMessage();
+
+            // Check if it's a "gallery already exists" error
+            if (str_contains($errorMessage, 'already exists') ||
+                str_contains($errorMessage, 'sudah ada') ||
+                str_contains($errorMessage, '409')) {
+                $this->line('✅ Face gallery already exists');
+                return true;
+            }
+
+            $this->error('❌ Gallery creation failed: ' . $errorMessage);
+
+            // Provide specific guidance
+            if (str_contains($errorMessage, '401')) {
+                $this->line('💡 Tip: Check your API token permissions for gallery creation');
+            } elseif (str_contains($errorMessage, '416')) {
+                $this->line('💡 Tip: Gallery ID format might be invalid');
+            }
+
             return false;
         }
     }

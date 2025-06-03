@@ -32,11 +32,30 @@ class FaceRecognitionService
                 'trx_id' => $this->generateTransactionId()
             ]);
 
+            Log::info('Face API - Get Counters Response', [
+                'status_code' => $response->status(),
+                'response_body' => $response->body()
+            ]);
+
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+
+                // Validate response structure
+                if (!isset($data['status'])) {
+                    Log::warning('Face API - Unexpected response structure', ['response' => $data]);
+
+                    // If response doesn't have expected structure, create a normalized response
+                    return [
+                        'status' => 'success', // Assume success if we got a 200 response
+                        'status_message' => 'API accessible but response format differs from documentation',
+                        'remaining_limit' => $data // Use whatever data we got
+                    ];
+                }
+
+                return $data;
             }
 
-            throw new Exception('Failed to get API counters: ' . $response->body());
+            throw new Exception('Failed to get API counters: HTTP ' . $response->status() . ' - ' . $response->body());
         } catch (Exception $e) {
             Log::error('Face API - Get Counters Error: ' . $e->getMessage());
             throw $e;
@@ -57,11 +76,27 @@ class FaceRecognitionService
                 'trx_id' => $this->generateTransactionId()
             ]);
 
+            Log::info('Face API - Create FaceGallery Response', [
+                'status_code' => $response->status(),
+                'response_body' => $response->body()
+            ]);
+
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+
+                // Normalize response if needed
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'status_message' => 'FaceGallery operation completed',
+                        'data' => $data
+                    ];
+                }
+
+                return $data;
             }
 
-            throw new Exception('Failed to create FaceGallery: ' . $response->body());
+            throw new Exception('Failed to create FaceGallery: HTTP ' . $response->status() . ' - ' . $response->body());
         } catch (Exception $e) {
             Log::error('Face API - Create FaceGallery Error: ' . $e->getMessage());
             throw $e;
@@ -87,12 +122,29 @@ class FaceRecognitionService
                 'trx_id' => $this->generateTransactionId()
             ]);
 
+            Log::info('Face API - Enroll Face Response', [
+                'user_id' => $userId,
+                'status_code' => $response->status(),
+                'response_body' => substr($response->body(), 0, 500) // Limit log size
+            ]);
+
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'status_message' => 'Face enrollment completed',
+                        'data' => $data
+                    ];
+                }
+
+                return $data;
             }
 
             $errorData = $response->json();
-            throw new Exception('Failed to enroll face: ' . ($errorData['status_message'] ?? $response->body()));
+            $errorMessage = $errorData['status_message'] ?? 'HTTP ' . $response->status() . ' - ' . $response->body();
+            throw new Exception('Failed to enroll face: ' . $errorMessage);
         } catch (Exception $e) {
             Log::error('Face API - Enroll Face Error: ' . $e->getMessage());
             throw $e;
@@ -118,11 +170,26 @@ class FaceRecognitionService
             ]);
 
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    // For verify-face, we need to check if we have the expected fields
+                    return [
+                        'status' => 'success',
+                        'verified' => $data['verified'] ?? false,
+                        'similarity' => $data['similarity'] ?? 0,
+                        'masker' => $data['masker'] ?? false,
+                        'user_name' => $data['user_name'] ?? '',
+                        'status_message' => 'Face verification completed'
+                    ];
+                }
+
+                return $data;
             }
 
             $errorData = $response->json();
-            throw new Exception('Failed to verify face: ' . ($errorData['status_message'] ?? $response->body()));
+            $errorMessage = $errorData['status_message'] ?? 'HTTP ' . $response->status() . ' - ' . $response->body();
+            throw new Exception('Failed to verify face: ' . $errorMessage);
         } catch (Exception $e) {
             Log::error('Face API - Verify Face Error: ' . $e->getMessage());
             throw $e;
@@ -147,11 +214,25 @@ class FaceRecognitionService
             ]);
 
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'confidence_level' => $data['confidence_level'] ?? 0,
+                        'mask' => $data['mask'] ?? false,
+                        'user_id' => $data['user_id'] ?? '',
+                        'user_name' => $data['user_name'] ?? '',
+                        'status_message' => 'Face identification completed'
+                    ];
+                }
+
+                return $data;
             }
 
             $errorData = $response->json();
-            throw new Exception('Failed to identify face: ' . ($errorData['status_message'] ?? $response->body()));
+            $errorMessage = $errorData['status_message'] ?? 'HTTP ' . $response->status() . ' - ' . $response->body();
+            throw new Exception('Failed to identify face: ' . $errorMessage);
         } catch (Exception $e) {
             Log::error('Face API - Identify Face Error: ' . $e->getMessage());
             throw $e;
@@ -174,11 +255,24 @@ class FaceRecognitionService
             ]);
 
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'similarity' => $data['similarity'] ?? 0,
+                        'verified' => $data['verified'] ?? false,
+                        'masker' => $data['masker'] ?? false,
+                        'status_message' => 'Image comparison completed'
+                    ];
+                }
+
+                return $data;
             }
 
             $errorData = $response->json();
-            throw new Exception('Failed to compare images: ' . ($errorData['status_message'] ?? $response->body()));
+            $errorMessage = $errorData['status_message'] ?? 'HTTP ' . $response->status() . ' - ' . $response->body();
+            throw new Exception('Failed to compare images: ' . $errorMessage);
         } catch (Exception $e) {
             Log::error('Face API - Compare Images Error: ' . $e->getMessage());
             throw $e;
@@ -202,10 +296,20 @@ class FaceRecognitionService
             ]);
 
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'faces' => $data['faces'] ?? $data, // Use 'faces' key or entire response
+                        'status_message' => 'Faces list retrieved'
+                    ];
+                }
+
+                return $data;
             }
 
-            throw new Exception('Failed to list faces: ' . $response->body());
+            throw new Exception('Failed to list faces: HTTP ' . $response->status() . ' - ' . $response->body());
         } catch (Exception $e) {
             Log::error('Face API - List Faces Error: ' . $e->getMessage());
             throw $e;
@@ -230,10 +334,19 @@ class FaceRecognitionService
             ]);
 
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'status_message' => 'Face deleted successfully'
+                    ];
+                }
+
+                return $data;
             }
 
-            throw new Exception('Failed to delete face: ' . $response->body());
+            throw new Exception('Failed to delete face: HTTP ' . $response->status() . ' - ' . $response->body());
         } catch (Exception $e) {
             Log::error('Face API - Delete Face Error: ' . $e->getMessage());
             throw $e;
