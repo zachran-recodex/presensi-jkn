@@ -54,15 +54,6 @@ class Kernel extends ConsoleKernel
             ->name('generate-monthly-report')
             ->description('Generate monthly attendance report');
 
-        // Daily backup reminder for critical data (runs at 1 AM)
-        $schedule->call(function () {
-            Log::info('Daily backup reminder: Please ensure attendance data is backed up');
-        })
-            ->daily()
-            ->at('01:00')
-            ->name('backup-reminder')
-            ->description('Daily backup reminder log');
-
         // Hourly queue processing (if using database queue)
         $schedule->command('queue:work --stop-when-empty')
             ->hourly()
