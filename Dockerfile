@@ -1,5 +1,5 @@
-# Dockerfile untuk Laravel 10 - Website Presensi
-FROM php:8.2-fpm
+# Use official PHP image with Apache
+FROM php:8.2-apache
 
 # Set working directory
 WORKDIR /var/www/html
@@ -14,75 +14,44 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
-    nginx \
     supervisor \
     cron \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && a2enmod rewrite \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install \
-    pdo_mysql \
-    mbstring \
-    exif \
-    pcntl \
-    bcmath \
-    gd \
-    zip \
-    sockets
-
-# Install Redis extension
-RUN pecl install redis && docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Create user untuk Laravel
-RUN groupadd -g 1000 www && useradd -u 1000 -ms /bin/bash -g www www
+# Copy Apache configuration
+COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# Copy existing application directory contents
+# Copy supervisor configuration
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy application code
 COPY . /var/www/html
 
-# Copy existing application directory permissions
-COPY --chown=www:www . /var/www/html
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Install Laravel dependencies
+# Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Install Node.js dan NPM
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
+# Copy environment file
+COPY .env.production /var/www/html/.env
 
-# Build frontend assets
-RUN npm install && npm run build
+# Generate application key and run migrations
+RUN php artisan key:generate \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
 
-# Set permissions
-RUN chown -R www:www /var/www/html \
-    && chmod -R 755 /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
-
-# Copy configuration files
-COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY docker/nginx/site.conf /etc/nginx/sites-available/default
-COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
-COPY docker/php/php.ini /usr/local/etc/php/php.ini
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY docker/crontab /etc/cron.d/laravel-cron
-
-# Set crontab permissions
-RUN chmod 0644 /etc/cron.d/laravel-cron \
-    && crontab /etc/cron.d/laravel-cron
-
-# Create log directories
-RUN mkdir -p /var/log/nginx /var/log/supervisor \
-    && chown -R www:www /var/log/nginx
-
-# Expose port
+# Expose port 80
 EXPOSE 80
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
-
-# Start services
+# Start supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
