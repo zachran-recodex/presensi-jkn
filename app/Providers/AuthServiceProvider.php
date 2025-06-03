@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Employee;
+use App\Models\Attendance;
+use App\Policies\EmployeePolicy;
+use App\Policies\AttendancePolicy;
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -13,7 +17,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        Employee::class => EmployeePolicy::class,
+        Attendance::class => AttendancePolicy::class,
     ];
 
     /**
@@ -21,6 +26,12 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register policies
+        $this->registerPolicies();
+
+        // Additional gates can be defined here if needed
+        // Gate::define('manage-system', function ($user) {
+        //     return $user->isAdmin();
+        // });
     }
 }
