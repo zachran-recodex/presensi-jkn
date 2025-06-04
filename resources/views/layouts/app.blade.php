@@ -79,9 +79,6 @@
                     </div>
                 @endif
 
-                <!-- Alert Messages -->
-                @include('components.alert')
-
                 <!-- Main content -->
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -105,9 +102,6 @@
             </footer>
         </div>
     </div>
-
-    <!-- Modal Component -->
-    @include('components.modal')
 
     <!-- Additional Scripts -->
     @stack('scripts')

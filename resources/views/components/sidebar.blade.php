@@ -1,4 +1,3 @@
-<!-- resources/views/components/sidebar.blade.php -->
 <div class="flex flex-col flex-grow bg-white pt-5 pb-4 overflow-y-auto border-r border-gray-200">
     <!-- Logo -->
     <div class="flex items-center flex-shrink-0 px-4">
@@ -21,13 +20,15 @@
                     <i class="fas fa-user text-white text-sm"></i>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
-                    <p class="text-xs text-gray-500">
+                    <p class="text-sm font-medium text-gray-900">
                         @if(Auth::user()->isAdmin())
                             Administrator
                         @else
                             {{ Auth::user()->employee->employee_id ?? 'Karyawan' }}
                         @endif
+                    </p>
+                    <p class="text-xs text-gray-500">
+                        {{ Auth::user()->username }}
                     </p>
                 </div>
             </div>

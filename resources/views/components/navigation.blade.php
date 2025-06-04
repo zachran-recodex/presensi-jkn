@@ -1,4 +1,3 @@
-<!-- resources/views/components/navigation.blade.php -->
 <div class="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200">
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -124,7 +123,7 @@
                 <!-- User dropdown -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open"
-                            class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            class="px-6 py-2 flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                             <i class="fas fa-user text-white text-sm"></i>
                         </div>
@@ -147,7 +146,7 @@
                             <!-- User Info -->
                             <div class="px-4 py-2 border-b border-gray-200">
                                 <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
-                                <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                                <p class="text-xs text-gray-500">{{ Auth::user()->username }}</p>
                                 @if(Auth::user()->employee)
                                     <p class="text-xs text-gray-500">{{ Auth::user()->employee->employee_id }}</p>
                                 @endif
