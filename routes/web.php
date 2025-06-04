@@ -79,6 +79,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Admin attendance history
     Route::get('/admin/attendance-history', [AttendanceController::class, 'history'])->name('admin.attendance.history');
+
+    Route::get('/admin/system-health', [SystemHealthController::class, 'index']);
 });
 
 // Employee individual report (accessible by employee and admin)
