@@ -2,8 +2,8 @@
     <!-- Logo -->
     <div class="flex items-center flex-shrink-0 px-4">
         <div class="flex items-center">
-            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <i class="fas fa-clock text-white text-lg"></i>
+            <div class="w-12 h-12 flex items-center justify-center">
+                <img src="{{ asset('images/logo.png') }}" alt="logo">
             </div>
             <div class="ml-3">
                 <h1 class="text-lg font-semibold text-gray-900">Sistem Presensi</h1>
