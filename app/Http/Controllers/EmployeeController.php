@@ -284,65 +284,6 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Bulk actions for employees
-     */
-    public function bulkAction(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'action' => 'required|in:activate,deactivate,delete',
-            'employee_ids' => 'required|array',
-            'employee_ids.*' => 'exists:employees,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data tidak valid.'
-            ], 422);
-        }
-
-        try {
-            $employees = Employee::whereIn('id', $request->employee_ids)->get();
-            $count = $employees->count();
-
-            foreach ($employees as $employee) {
-                switch ($request->action) {
-                    case 'activate':
-                        $employee->update(['status' => 'active']);
-                        $employee->user->update(['is_active' => true]);
-                        break;
-                    case 'deactivate':
-                        $employee->update(['status' => 'inactive']);
-                        $employee->user->update(['is_active' => false]);
-                        break;
-                    case 'delete':
-                        $employee->update(['status' => 'terminated']);
-                        $employee->user->update(['is_active' => false]);
-                        break;
-                }
-            }
-
-            $actionText = [
-                'activate' => 'diaktifkan',
-                'deactivate' => 'dinonaktifkan',
-                'delete' => 'dihapus'
-            ];
-
-            return response()->json([
-                'success' => true,
-                'message' => "{$count} karyawan berhasil {$actionText[$request->action]}."
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Bulk action error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal melakukan aksi massal.'
-            ], 500);
-        }
-    }
-
-    /**
      * Export employees data
      */
     public function export(Request $request)

@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    redirect()->route('login');
+    return redirect('/login');
 });
 
 // Dashboard routes
@@ -50,7 +50,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Employee management
     Route::resource('employees', EmployeeController::class);
     Route::post('/employees/{employee}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('employees.toggle-status');
-    Route::post('/employees/bulk-action', [EmployeeController::class, 'bulkAction'])->name('employees.bulk-action');
     Route::get('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
 
     // Location management
@@ -66,21 +65,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/face-enrollment/{employee}/reenroll', [FaceEnrollmentController::class, 'reenroll'])->name('face-enrollment.reenroll');
     Route::delete('/face-enrollment/{employee}/delete', [FaceEnrollmentController::class, 'delete'])->name('face-enrollment.delete');
     Route::post('/face-enrollment/{employee}/test', [FaceEnrollmentController::class, 'testVerification'])->name('face-enrollment.test');
-    Route::post('/face-enrollment/bulk-enroll', [FaceEnrollmentController::class, 'bulkEnroll'])->name('face-enrollment.bulk-enroll');
     Route::get('/face-enrollment/stats', [FaceEnrollmentController::class, 'stats'])->name('face-enrollment.stats');
     Route::get('/face-enrollment/list-faces', [FaceEnrollmentController::class, 'listEnrolledFaces'])->name('face-enrollment.list-faces');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/daily', [ReportController::class, 'daily'])->name('reports.daily');
     Route::get('/reports/monthly', [ReportController::class, 'monthly'])->name('reports.monthly');
-    Route::get('/reports/export/daily', [ReportController::class, 'exportDaily'])->name('reports.export.daily');
     Route::get('/reports/export/monthly', [ReportController::class, 'exportMonthly'])->name('reports.export.monthly');
 
     // Admin attendance history
     Route::get('/admin/attendance-history', [AttendanceController::class, 'history'])->name('admin.attendance.history');
-
-    Route::get('/admin/system-health', [SystemHealthController::class, 'index']);
 });
 
 // Employee individual report (accessible by employee and admin)

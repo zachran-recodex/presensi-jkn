@@ -246,53 +246,6 @@ class FaceEnrollmentController extends Controller
     }
 
     /**
-     * Bulk face enrollment
-     */
-    public function bulkEnroll(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'employee_ids' => 'required|array',
-            'employee_ids.*' => 'exists:employees,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data tidak valid.'
-            ], 422);
-        }
-
-        $results = [];
-        $successCount = 0;
-        $failCount = 0;
-
-        foreach ($request->employee_ids as $employeeId) {
-            $employee = Employee::find($employeeId);
-
-            if ($employee->user->hasFaceEnrolled()) {
-                $results[] = [
-                    'employee' => $employee->user->name,
-                    'status' => 'skipped',
-                    'message' => 'Sudah enrollment sebelumnya'
-                ];
-                continue;
-            }
-
-            $results[] = [
-                'employee' => $employee->user->name,
-                'status' => 'pending',
-                'message' => 'Perlu foto wajah manual'
-            ];
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Bulk enrollment memerlukan foto wajah manual untuk setiap karyawan.',
-            'results' => $results
-        ]);
-    }
-
-    /**
      * Get enrollment statistics
      */
     public function stats()
