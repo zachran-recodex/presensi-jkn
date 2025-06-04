@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    redirect()->route('dashboard');
+    redirect()->route('login');
 });
 
 // Dashboard routes

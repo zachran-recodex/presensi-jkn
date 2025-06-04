@@ -112,17 +112,6 @@
                         Login
                     </a>
                 @endif
-
-                <a href="{{ url('/') }}" class="hover:text-blue-600 transition-colors duration-200">
-                    <i class="fas fa-home mr-1"></i>
-                    Beranda
-                </a>
-
-                <span class="text-gray-400">|</span>
-
-                <span class="text-gray-500">
-                    v1.0.0
-                </span>
             </div>
 
             <p class="mt-4 text-xs text-gray-500">
