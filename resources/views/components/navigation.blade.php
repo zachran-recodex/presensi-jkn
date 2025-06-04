@@ -1,96 +1,100 @@
-<!-- Top Navigation Bar -->
-<nav class="bg-white shadow-sm border-b border-gray-200">
+<!-- resources/views/components/navigation.blade.php -->
+<div class="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200">
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <!-- Left side -->
             <div class="flex items-center">
                 <!-- Mobile menu button -->
                 <button @click="sidebarOpen = true"
-                       class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors duration-200">
-                    <span class="sr-only">Open main menu</span>
-                    <i class="fas fa-bars text-xl"></i>
+                        class="lg:hidden -ml-2 mr-2 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors duration-200">
+                    <span class="sr-only">Open sidebar</span>
+                    <i class="fas fa-bars text-lg"></i>
                 </button>
 
-                <!-- Logo & Title (visible on mobile when sidebar is closed) -->
-                <div class="lg:hidden ml-4 flex items-center">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-clock text-white text-sm"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h1 class="text-lg font-semibold text-gray-900">Presensi</h1>
+                <!-- Breadcrumb / Current Page -->
+                <div class="hidden sm:flex items-center">
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <a href="{{ route('dashboard') }}" class="hover:text-gray-700 transition-colors duration-200">
+                            <i class="fas fa-home"></i>
+                        </a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-900 font-medium">
+                            @yield('breadcrumb', 'Dashboard')
+                        </span>
                     </div>
                 </div>
 
-                <!-- Breadcrumb (desktop only) -->
-                <div class="hidden lg:flex items-center space-x-4">
-                    <nav class="flex" aria-label="Breadcrumb">
-                        <ol class="flex items-center space-x-2">
-                            <li>
-                                <div>
-                                    <a href="{{ route('dashboard') }}" class="text-gray-400 hover:text-gray-500 transition-colors duration-200">
-                                        <i class="fas fa-home"></i>
-                                        <span class="sr-only">Home</span>
-                                    </a>
-                                </div>
-                            </li>
-                            @if(!request()->routeIs('dashboard'))
-                                <li>
-                                    <div class="flex items-center">
-                                        <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
-                                        <span class="ml-2 text-sm font-medium text-gray-500">
-                                            @yield('breadcrumb', ucfirst(request()->segment(1)))
-                                        </span>
-                                    </div>
-                                </li>
-                            @endif
-                        </ol>
-                    </nav>
+                <!-- Current Time (Live) -->
+                <div class="ml-4 hidden md:flex items-center">
+                    <div class="text-sm text-gray-500">
+                        <span id="current-time" class="font-mono"></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right side -->
             <div class="flex items-center space-x-4">
+                <!-- Quick Stats for Admin -->
+                @if(Auth::user()->isAdmin())
+                    <div class="hidden xl:flex items-center space-x-6 text-sm">
+                        <div class="text-center">
+                            <div id="quick-present" class="font-semibold text-green-600">-</div>
+                            <div class="text-xs text-gray-500">Hadir</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="quick-late" class="font-semibold text-yellow-600">-</div>
+                            <div class="text-xs text-gray-500">Terlambat</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="quick-absent" class="font-semibold text-red-600">-</div>
+                            <div class="text-xs text-gray-500">Tidak Hadir</div>
+                        </div>
+                    </div>
+                @endif
 
-                <!-- Current time -->
-                <div class="hidden sm:flex items-center text-sm text-gray-500">
-                    <i class="fas fa-clock mr-2 text-gray-400"></i>
-                    <span id="current-time">{{ now()->format('H:i:s') }}</span>
-                </div>
+                <!-- Employee Quick Action -->
+                @if(Auth::user()->isEmployee())
+                    @php
+                        $canClockIn = !Auth::user()->hasClockedInToday() && Auth::user()->employee && Auth::user()->employee->status === 'active';
+                        $canClockOut = Auth::user()->hasClockedInToday() && !Auth::user()->hasClockedOutToday();
+                    @endphp
 
-                <!-- Quick attendance button (for employees only) -->
-                @if(auth()->user()->isEmployee())
-                    <div class="hidden sm:block">
-                        @if(!auth()->user()->hasClockedInToday())
+                    <div class="hidden sm:flex items-center">
+                        @if($canClockIn)
                             <a href="{{ route('attendance.index') }}"
-                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                                 <i class="fas fa-clock mr-2"></i>
                                 Clock In
                             </a>
-                        @elseif(!auth()->user()->hasClockedOutToday())
+                        @elseif($canClockOut)
                             <a href="{{ route('attendance.index') }}"
-                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
-                                <i class="fas fa-sign-out-alt mr-2"></i>
+                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
+                                <i class="fas fa-clock mr-2"></i>
                                 Clock Out
                             </a>
                         @else
-                            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-md">
-                                <i class="fas fa-check mr-2"></i>
-                                Complete
+                            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-gray-100 rounded-md">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Selesai
                             </span>
                         @endif
                     </div>
                 @endif
 
-                <!-- Notifications dropdown -->
+                <!-- Refresh Button -->
+                <button onclick="refreshPage()"
+                        class="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-md transition-colors duration-200"
+                        title="Refresh Data">
+                    <i class="fas fa-sync-alt" id="refresh-icon"></i>
+                </button>
+
+                <!-- Notifications -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open"
-                           class="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                           aria-label="View notifications">
-                        <i class="fas fa-bell text-lg"></i>
-                        <!-- Notification badge -->
-                        @if(auth()->user()->isAdmin())
-                            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
-                        @endif
+                            class="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-md transition-colors duration-200"
+                            title="Notifikasi">
+                        <i class="fas fa-bell"></i>
+                        <!-- Notification badge (if any) -->
+                        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"
+                              style="display: none;" id="notification-badge"></span>
                     </button>
 
                     <!-- Notification dropdown -->
@@ -105,70 +109,31 @@
                          class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                         <div class="py-1">
                             <div class="px-4 py-2 border-b border-gray-200">
-                                <h3 class="text-sm font-medium text-gray-900">Notifications</h3>
+                                <h3 class="text-sm font-medium text-gray-900">Notifikasi</h3>
                             </div>
                             <div class="max-h-64 overflow-y-auto">
-                                @if(auth()->user()->isAdmin())
-                                    <!-- Sample admin notifications -->
-                                    <a href="#" class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200">
-                                        <div class="flex items-start">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
-                                            </div>
-                                            <div class="ml-3">
-                                                <p class="text-sm text-gray-800">5 employees haven't clocked in today</p>
-                                                <p class="text-xs text-gray-500">{{ now()->format('H:i') }}</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200">
-                                        <div class="flex items-start">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-user-plus text-green-400"></i>
-                                            </div>
-                                            <div class="ml-3">
-                                                <p class="text-sm text-gray-800">New employee added successfully</p>
-                                                <p class="text-xs text-gray-500">2 hours ago</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                @else
-                                    <!-- Sample employee notifications -->
-                                    <div class="px-4 py-8 text-center text-gray-500">
-                                        <i class="fas fa-bell-slash text-3xl mb-2"></i>
-                                        <p class="text-sm">No new notifications</p>
-                                    </div>
-                                @endif
-                            </div>
-                            @if(auth()->user()->isAdmin())
-                                <div class="border-t border-gray-200">
-                                    <a href="#" class="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-50 text-center transition-colors duration-200">
-                                        View all notifications
-                                    </a>
+                                <!-- Placeholder notifications -->
+                                <div class="px-4 py-3 text-sm text-gray-500 text-center">
+                                    Tidak ada notifikasi baru
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Profile dropdown -->
+                <!-- User dropdown -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open"
-                           class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                           aria-label="User menu">
+                            class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                             <i class="fas fa-user text-white text-sm"></i>
                         </div>
-                        <div class="ml-3 hidden lg:block text-left">
-                            <div class="text-sm font-medium text-gray-700">{{ Auth::user()->name }}</div>
-                            <div class="text-xs text-gray-500">
-                                {{ Auth::user()->isAdmin() ? 'Administrator' : 'Employee' }}
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-down ml-2 text-gray-400 text-xs hidden lg:block"></i>
+                        <span class="hidden md:ml-3 md:block text-sm font-medium text-gray-700">
+                            {{ Str::limit(Auth::user()->name, 20) }}
+                        </span>
+                        <i class="hidden md:block ml-2 fas fa-chevron-down text-xs text-gray-500"></i>
                     </button>
 
-                    <!-- Profile dropdown menu -->
                     <div x-show="open"
                          @click.away="open = false"
                          x-transition:enter="transition ease-out duration-100"
@@ -177,10 +142,10 @@
                          x-transition:leave="transition ease-in duration-75"
                          x-transition:leave-start="transform opacity-100 scale-100"
                          x-transition:leave-end="transform opacity-0 scale-95"
-                         class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                         class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                         <div class="py-1">
-                            <!-- User info header -->
-                            <div class="px-4 py-3 border-b border-gray-200">
+                            <!-- User Info -->
+                            <div class="px-4 py-2 border-b border-gray-200">
                                 <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
                                 <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
                                 @if(Auth::user()->employee)
@@ -188,125 +153,111 @@
                                 @endif
                             </div>
 
-                            <!-- Profile link -->
+                            <!-- Menu Items -->
                             <a href="{{ route('profile.edit') }}"
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                <i class="fas fa-user-circle mr-3 text-gray-400"></i>
-                                Edit Profile
+                                <i class="fas fa-user-circle mr-2 text-gray-500"></i>
+                                Profil Saya
                             </a>
 
-                            <!-- Employee-specific links -->
-                            @if(auth()->user()->isEmployee())
-                                <a href="{{ route('attendance.history') }}"
+                            @if(Auth::user()->isEmployee() && Auth::user()->employee)
+                                <a href="{{ route('reports.employee', Auth::user()->employee) }}"
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                    <i class="fas fa-history mr-3 text-gray-400"></i>
-                                    My Attendance History
-                                </a>
-
-                                <a href="{{ route('reports.employee', auth()->user()->employee) }}"
-                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                    <i class="fas fa-chart-line mr-3 text-gray-400"></i>
-                                    My Report
+                                    <i class="fas fa-chart-bar mr-2 text-gray-500"></i>
+                                    Laporan Saya
                                 </a>
                             @endif
 
-                            <!-- Admin-specific links -->
-                            @if(auth()->user()->isAdmin())
-                                <div class="border-t border-gray-200 mt-1 pt-1">
-                                    <a href="{{ route('employees.index') }}"
-                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                        <i class="fas fa-users mr-3 text-gray-400"></i>
-                                        Manage Employees
-                                    </a>
-                                    <a href="{{ route('reports.index') }}"
-                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                        <i class="fas fa-chart-bar mr-3 text-gray-400"></i>
-                                        Reports Dashboard
-                                    </a>
-                                </div>
-                            @endif
+                            <div class="border-t border-gray-200"></div>
 
                             <!-- Logout -->
-                            <div class="border-t border-gray-200 mt-1 pt-1">
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit"
-                                           class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                        <i class="fas fa-sign-out-alt mr-3 text-gray-400"></i>
-                                        Logout
-                                    </button>
-                                </form>
-                            </div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                        class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>
+                                    Keluar
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</nav>
+</div>
 
-<!-- Page Status Bar (for employee attendance status) -->
-@if(auth()->user()->isEmployee())
-    <div class="bg-gray-50 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="py-2">
-                <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Today's Status:</span>
-
-                        @if(auth()->user()->hasClockedInToday())
-                            @php
-                                $clockIn = auth()->user()->getTodayClockIn();
-                            @endphp
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <i class="fas fa-check mr-1"></i>
-                                Clocked In: {{ $clockIn->attendance_time->format('H:i') }}
-                                @if($clockIn->is_late)
-                                    <span class="ml-1 text-red-600">({{ $clockIn->late_minutes }}m late)</span>
-                                @endif
-                            </span>
-
-                            @if(auth()->user()->hasClockedOutToday())
-                                @php
-                                    $clockOut = auth()->user()->getTodayClockOut();
-                                @endphp
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    <i class="fas fa-sign-out-alt mr-1"></i>
-                                    Clocked Out: {{ $clockOut->attendance_time->format('H:i') }}
-                                </span>
-                            @endif
-                        @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                <i class="fas fa-clock mr-1"></i>
-                                Not Clocked In Yet
-                            </span>
-                        @endif
-                    </div>
-
-                    <div class="flex items-center text-gray-500">
-                        <i class="fas fa-map-marker-alt mr-1"></i>
-                        <span>{{ auth()->user()->employee->location->name ?? 'No location assigned' }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endif
-
-<!-- Real-time clock script -->
 <script>
-    function updateClock() {
+    // Live current time update
+    function updateCurrentTime() {
         const now = new Date();
-        const timeString = now.toTimeString().split(' ')[0]; // HH:MM:SS format
-        const timeElement = document.getElementById('current-time');
-        if (timeElement) {
-            timeElement.textContent = timeString;
+        const timeString = now.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        const dateString = now.toLocaleDateString('id-ID', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short'
+        });
+
+        const currentTimeElement = document.getElementById('current-time');
+        if (currentTimeElement) {
+            currentTimeElement.textContent = `${dateString}, ${timeString}`;
         }
     }
 
-    // Update clock every second
-    setInterval(updateClock, 1000);
+    // Refresh page function
+    function refreshPage() {
+        const refreshIcon = document.getElementById('refresh-icon');
+        if (refreshIcon) {
+            refreshIcon.classList.add('fa-spin');
+        }
 
-    // Update immediately
-    updateClock();
+        // If admin, refresh quick stats
+        @if(Auth::user()->isAdmin())
+            refreshQuickStats();
+        @else
+            location.reload();
+        @endif
+    }
+
+    @if(Auth::user()->isAdmin())
+    // Refresh quick stats for admin
+    function refreshQuickStats() {
+        fetch('{{ route("dashboard.stats") }}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('quick-present').textContent = data.today_present || '0';
+                document.getElementById('quick-late').textContent = data.today_late || '0';
+                document.getElementById('quick-absent').textContent = data.today_absent || '0';
+
+                // Stop spinning
+                const refreshIcon = document.getElementById('refresh-icon');
+                if (refreshIcon) {
+                    refreshIcon.classList.remove('fa-spin');
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing stats:', error);
+                const refreshIcon = document.getElementById('refresh-icon');
+                if (refreshIcon) {
+                    refreshIcon.classList.remove('fa-spin');
+                }
+            });
+    }
+    @endif
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+
+        @if(Auth::user()->isAdmin())
+            refreshQuickStats();
+            // Auto-refresh stats every 2 minutes
+            setInterval(refreshQuickStats, 120000);
+        @endif
+    });
 </script>
