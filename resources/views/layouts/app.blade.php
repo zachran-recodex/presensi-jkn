@@ -1,142 +1,142 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Sistem Presensi') }} - @yield('title', 'Dashboard')</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Additional Page Styles -->
-        @stack('styles')
-    </head>
-    <body class="h-full bg-gray-50 font-sans antialiased">
-        <div class="min-h-full">
-            @include('layouts.navigation')
+    <!-- Additional CSS -->
+    @stack('styles')
+</head>
+<body class="font-sans antialiased bg-gray-50" x-data="{ sidebarOpen: false }">
+    <!-- Page Wrapper -->
+    <div class="min-h-screen">
 
-            <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white shadow-sm border-b border-gray-200">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
+        <!-- Mobile Sidebar Overlay -->
+        <div x-show="sidebarOpen"
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 flex z-40 lg:hidden"
+             @click="sidebarOpen = false">
+            <div class="fixed inset-0 bg-gray-600 bg-opacity-75"></div>
+        </div>
 
-            <!-- Main Content -->
+        <!-- Sidebar for mobile and desktop -->
+        <div class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
+            @include('components.sidebar')
+        </div>
+
+        <!-- Mobile sidebar -->
+        <div x-show="sidebarOpen"
+             x-transition:enter="transition ease-in-out duration-300 transform"
+             x-transition:enter-start="-translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transition ease-in-out duration-300 transform"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="-translate-x-full"
+             class="relative flex-1 flex flex-col max-w-xs w-full bg-white lg:hidden">
+            @include('components.sidebar')
+        </div>
+
+        <!-- Main content area -->
+        <div class="lg:pl-64 flex flex-col min-h-screen">
+            <!-- Top navigation -->
+            @include('components.navigation')
+
+            <!-- Page Content -->
             <main class="flex-1">
-                <!-- Success/Error Messages -->
-                @if (session('success'))
-                    <div x-data="{ show: true }"
-                         x-show="show"
-                         x-transition
-                         x-init="setTimeout(() => show = false, 5000)"
-                         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-                        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg relative">
-                            <div class="flex items-center">
-                                <i class="fas fa-check-circle mr-3 text-green-600"></i>
-                                <span>{{ session('success') }}</span>
-                                <button @click="show = false" class="ml-auto text-green-600 hover:text-green-800">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                <!-- Page header -->
+                @hasSection('header')
+                    <div class="bg-white shadow">
+                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                            <div class="flex items-center justify-between">
+                                <h1 class="text-3xl font-bold text-gray-900">
+                                    @yield('header')
+                                </h1>
+                                @hasSection('header-actions')
+                                    <div class="flex space-x-3">
+                                        @yield('header-actions')
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 @endif
 
-                @if (session('error'))
-                    <div x-data="{ show: true }"
-                         x-show="show"
-                         x-transition
-                         x-init="setTimeout(() => show = false, 5000)"
-                         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-                        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg relative">
-                            <div class="flex items-center">
-                                <i class="fas fa-exclamation-circle mr-3 text-red-600"></i>
-                                <span>{{ session('error') }}</span>
-                                <button @click="show = false" class="ml-auto text-red-600 hover:text-red-800">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                @endif
+                <!-- Alert Messages -->
+                @include('components.alert')
 
-                @if (session('warning'))
-                    <div x-data="{ show: true }"
-                         x-show="show"
-                         x-transition
-                         x-init="setTimeout(() => show = false, 5000)"
-                         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg relative">
-                            <div class="flex items-center">
-                                <i class="fas fa-exclamation-triangle mr-3 text-yellow-600"></i>
-                                <span>{{ session('warning') }}</span>
-                                <button @click="show = false" class="ml-auto text-yellow-600 hover:text-yellow-800">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
+                <!-- Main content -->
+                <div class="py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {{ $slot }}
                     </div>
-                @endif
-
-                <!-- Page Content -->
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    {{ $slot }}
                 </div>
             </main>
-        </div>
 
-        <!-- Loading Overlay -->
-        <div x-data="{ loading: false }"
-             x-show="loading"
-             x-transition.opacity
-             x-on:start-loading.window="loading = true"
-             x-on:stop-loading.window="loading = false"
-             class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50"
-             style="display: none;">
-            <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
-                <div class="flex items-center space-x-4">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <span class="text-gray-900 font-medium">Memproses...</span>
+            <!-- Footer -->
+            <footer class="bg-white border-t border-gray-200">
+                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-500">
+                            © {{ date('Y') }} PT. Jaka Kuasa Nusantara. All rights reserved.
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            Version 1.0.0
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </footer>
         </div>
+    </div>
 
-        <!-- Additional Page Scripts -->
-        @stack('scripts')
+    <!-- Modal Component -->
+    @include('components.modal')
 
-        <!-- Global JavaScript -->
-        <script>
-            // Global helper functions
-            window.showLoading = function() {
-                window.dispatchEvent(new CustomEvent('start-loading'));
-            };
+    <!-- Additional Scripts -->
+    @stack('scripts')
 
-            window.hideLoading = function() {
-                window.dispatchEvent(new CustomEvent('stop-loading'));
-            };
+    <!-- Global JavaScript -->
+    <script>
+        // CSRF Token for AJAX requests
+        window.Laravel = {
+            csrfToken: '{{ csrf_token() }}'
+        };
 
-            // CSRF token for AJAX requests
-            window.Laravel = {
-                csrfToken: '{{ csrf_token() }}'
-            };
+        // Set CSRF token for all AJAX requests
+        window.axios.defaults.headers.common['X-CSRF-TOKEN'] = window.Laravel.csrfToken;
 
-            // Setup CSRF for all AJAX requests
-            const token = document.head.querySelector('meta[name="csrf-token"]');
-            if (token) {
-                window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+        // Global notification function
+        window.showNotification = function(message, type = 'success') {
+            const event = new CustomEvent('show-notification', {
+                detail: { message, type }
+            });
+            window.dispatchEvent(event);
+        };
+
+        // Close mobile sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('[x-data]');
+            if (sidebar && !sidebar.contains(event.target)) {
+                Alpine.store('sidebar', { open: false });
             }
-        </script>
-    </body>
+        });
+    </script>
+</body>
 </html>

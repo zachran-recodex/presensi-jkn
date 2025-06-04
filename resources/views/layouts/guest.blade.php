@@ -1,124 +1,177 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Sistem Presensi') }} - @yield('title', 'Login')</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 font-sans antialiased">
-        <div class="min-h-full flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
-            <!-- Header/Logo Section -->
-            <div class="text-center">
-                <div class="mx-auto bg-white rounded-full p-4 shadow-lg mb-4 w-20 h-20 flex items-center justify-center">
-                    <i class="fas fa-user-clock text-3xl text-blue-600"></i>
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Additional CSS -->
+    @stack('styles')
+</head>
+<body class="font-sans text-gray-900 antialiased">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <!-- Logo -->
+        <div class="mb-6">
+            <a href="/" class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-white text-xl"></i>
+                    </div>
                 </div>
-
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Sistem Presensi</h1>
-                <p class="text-lg text-gray-600">PT. Jaka Kuasa Nusantara</p>
-            </div>
-
-            <!-- Main Content Card -->
-            <div class="w-full sm:max-w-md mt-6 px-6 py-8 bg-white shadow-xl overflow-hidden sm:rounded-2xl border border-gray-100">
-                <!-- Status Messages -->
-                @if (session('status'))
-                    <div class="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
-                        <div class="flex items-center">
-                            <i class="fas fa-check-circle mr-2 text-green-600"></i>
-                            {{ session('status') }}
-                        </div>
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
-                        <div class="flex items-center">
-                            <i class="fas fa-exclamation-circle mr-2 text-red-600"></i>
-                            {{ session('error') }}
-                        </div>
-                    </div>
-                @endif
-
-                @if (session('warning'))
-                    <div class="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg text-sm">
-                        <div class="flex items-center">
-                            <i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i>
-                            {{ session('warning') }}
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Form Content -->
-                {{ $slot }}
-            </div>
-
-            <!-- Footer -->
-            <div class="mt-8 text-center text-sm text-gray-500">
-                <p>&copy; {{ date('Y') }} PT. Jaka Kuasa Nusantara. All rights reserved.</p>
-            </div>
-
-            <!-- Background Pattern -->
-            <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-                <div class="absolute -top-40 -right-32 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-                <div class="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-                <div class="absolute top-40 left-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-            </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-2xl font-bold text-gray-900">Sistem Presensi</h1>
+                    <p class="text-sm text-gray-600">PT. Jaka Kuasa Nusantara</p>
+                </div>
+            </a>
         </div>
 
-        <!-- Loading Overlay -->
-        <div x-data="{ loading: false }"
-             x-show="loading"
-             x-transition.opacity
-             x-on:start-loading.window="loading = true"
-             x-on:stop-loading.window="loading = false"
-             class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50"
-             style="display: none;">
-            <div class="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-2xl">
-                <div class="flex items-center space-x-4">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <span class="text-gray-900 font-medium">Memproses...</span>
+        <!-- Main Content Card -->
+        <div class="w-full sm:max-w-md mt-6 px-6 py-8 bg-white shadow-lg overflow-hidden sm:rounded-lg border border-gray-200">
+            <!-- Page Title -->
+            @hasSection('header')
+                <div class="mb-6 text-center">
+                    <h2 class="text-xl font-semibold text-gray-900">
+                        @yield('header')
+                    </h2>
+                    @hasSection('description')
+                        <p class="mt-2 text-sm text-gray-600">
+                            @yield('description')
+                        </p>
+                    @endif
                 </div>
-            </div>
+            @endif
+
+            <!-- Alert Messages -->
+            @if (session('status'))
+                <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-green-800">
+                                {{ session('status') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-red-800">
+                                {{ session('error') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if (session('warning'))
+                <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-yellow-800">
+                                {{ session('warning') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Main Content -->
+            {{ $slot }}
         </div>
 
-        <style>
-            @keyframes blob {
-                0% { transform: translate(0px, 0px) scale(1); }
-                33% { transform: translate(30px, -50px) scale(1.1); }
-                66% { transform: translate(-20px, 20px) scale(0.9); }
-                100% { transform: translate(0px, 0px) scale(1); }
-            }
-            .animate-blob {
-                animation: blob 7s infinite;
-            }
-            .animation-delay-2000 {
-                animation-delay: 2s;
-            }
-            .animation-delay-4000 {
-                animation-delay: 4s;
-            }
-        </style>
+        <!-- Footer Links -->
+        <div class="mt-8 text-center">
+            <div class="flex items-center justify-center space-x-6 text-sm text-gray-600">
+                @if(!request()->routeIs('login'))
+                    <a href="{{ route('login') }}" class="hover:text-blue-600 transition-colors duration-200">
+                        <i class="fas fa-sign-in-alt mr-1"></i>
+                        Login
+                    </a>
+                @endif
 
-        <script>
-            // Global helper functions
-            window.showLoading = function() {
-                window.dispatchEvent(new CustomEvent('start-loading'));
-            };
+                <a href="{{ url('/') }}" class="hover:text-blue-600 transition-colors duration-200">
+                    <i class="fas fa-home mr-1"></i>
+                    Beranda
+                </a>
 
-            window.hideLoading = function() {
-                window.dispatchEvent(new CustomEvent('stop-loading'));
-            };
-        </script>
-    </body>
+                <span class="text-gray-400">|</span>
+
+                <span class="text-gray-500">
+                    v1.0.0
+                </span>
+            </div>
+
+            <p class="mt-4 text-xs text-gray-500">
+                © {{ date('Y') }} PT. Jaka Kuasa Nusantara. All rights reserved.
+            </p>
+        </div>
+    </div>
+
+    <!-- Global JavaScript -->
+    <script>
+        // CSRF Token for AJAX requests
+        window.Laravel = {
+            csrfToken: '{{ csrf_token() }}'
+        };
+
+        // Auto-hide flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('[class*="bg-green-50"], [class*="bg-red-50"], [class*="bg-yellow-50"]');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.transition = 'opacity 0.5s ease-out';
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 500);
+                }, 5000);
+            });
+        });
+
+        // Form validation helper
+        window.validateForm = function(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[required]');
+            let isValid = true;
+
+            inputs.forEach(function(input) {
+                if (!input.value.trim()) {
+                    input.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    input.classList.remove('border-red-500');
+                }
+            });
+
+            return isValid;
+        };
+    </script>
+
+    <!-- Additional Scripts -->
+    @stack('scripts')
+</body>
 </html>
