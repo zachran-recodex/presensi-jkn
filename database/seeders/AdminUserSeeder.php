@@ -44,6 +44,24 @@ class AdminUserSeeder extends Seeder
             'is_active' => true,
         ]);
 
+        User::create([
+            'username' => 'zachranraze',
+            'name' => 'Zachran Razendra',
+            'email' => 'zachranraaze@jakakuasanusantara.web.id',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
+
+        User::create([
+            'username' => 'sinyo',
+            'name' => 'Sinyo Simpers',
+            'email' => 'sinyo@jakakuasanusantara.web.id',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
+
         $this->command->info('Admin users created successfully!');
         $this->command->line('');
         $this->command->line('Admin Login Credentials:');

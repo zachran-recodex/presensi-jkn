@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Employee;
 use App\Models\Location;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -25,6 +24,28 @@ class SampleEmployeeSeeder extends Seeder
         }
 
         $employees = [
+            [
+                'user' => [
+                    'name' => 'Alvie Dharia Safaraz',
+                    'username' => 'alvie',
+                    'email' => 'alive@jakakuasanusantara.web.id',
+                    'password' => Hash::make('alvie123'),
+                    'role' => 'user',
+                    'is_active' => true,
+                ],
+                'employee' => [
+                    'employee_id' => 'EMP000',
+                    'phone' => '081112354044',
+                    'position' => 'General Manager',
+                    'department' => 'Human Capital',
+                    'join_date' => '2020-01-15',
+                    'work_start_time' => '08:00',
+                    'work_end_time' => '17:00',
+                    'is_flexible_time' => false,
+                    'status' => 'active',
+                    'notes' => 'Alvie tukanng ngocok'
+                ]
+            ],
             [
                 'user' => [
                     'name' => 'Budi Santoso',
