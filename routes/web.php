@@ -75,6 +75,34 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Admin attendance history
     Route::get('/admin/attendance-history', [AttendanceController::class, 'history'])->name('admin.attendance.history');
+
+    // Face API Testing routes
+    Route::prefix('face-api-test')->name('face-api-test.')->group(function () {
+        // Main testing page
+        Route::get('/', [App\Http\Controllers\FaceApiTestController::class, 'index'])->name('index');
+
+        // API Connection Testing
+        Route::post('/connection', [App\Http\Controllers\FaceApiTestController::class, 'testConnection'])->name('connection');
+        Route::post('/counters', [App\Http\Controllers\FaceApiTestController::class, 'getCounters'])->name('counters');
+        Route::post('/galleries', [App\Http\Controllers\FaceApiTestController::class, 'getMyFaceGalleries'])->name('galleries');
+
+        // FaceGallery Management
+        Route::post('/gallery/create', [App\Http\Controllers\FaceApiTestController::class, 'createFaceGallery'])->name('gallery.create');
+        Route::post('/gallery/delete', [App\Http\Controllers\FaceApiTestController::class, 'deleteFaceGallery'])->name('gallery.delete');
+
+        // Face Operations
+        Route::post('/enroll', [App\Http\Controllers\FaceApiTestController::class, 'testEnrollFace'])->name('enroll');
+        Route::post('/verify', [App\Http\Controllers\FaceApiTestController::class, 'testVerifyFace'])->name('verify');
+        Route::post('/identify', [App\Http\Controllers\FaceApiTestController::class, 'testIdentifyFace'])->name('identify');
+        Route::post('/compare', [App\Http\Controllers\FaceApiTestController::class, 'testCompareImages'])->name('compare');
+
+        // Face Management
+        Route::post('/faces/list', [App\Http\Controllers\FaceApiTestController::class, 'listFaces'])->name('faces.list');
+        Route::post('/faces/delete', [App\Http\Controllers\FaceApiTestController::class, 'deleteFace'])->name('faces.delete');
+
+        // Utility
+        Route::get('/error-message', [App\Http\Controllers\FaceApiTestController::class, 'getErrorMessage'])->name('error.message');
+    });
 });
 
 // Employee individual report (accessible by employee and admin)
