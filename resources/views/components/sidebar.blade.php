@@ -142,6 +142,8 @@
         </div>
     </nav>
 
+    @php use Illuminate\Support\Facades\Auth; @endphp
+
     <!-- Quick Status (for employees) -->
     @if(Auth::user()->isEmployee() && Auth::user()->employee)
         <div class="px-4 py-4 border-t border-gray-200">

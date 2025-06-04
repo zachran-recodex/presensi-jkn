@@ -49,77 +49,6 @@
                     </div>
                 @endif
 
-                <!-- Employee Quick Action -->
-                @if(Auth::user()->isEmployee())
-                    @php
-                        $canClockIn = !Auth::user()->hasClockedInToday() && Auth::user()->employee && Auth::user()->employee->status === 'active';
-                        $canClockOut = Auth::user()->hasClockedInToday() && !Auth::user()->hasClockedOutToday();
-                    @endphp
-
-                    <div class="hidden sm:flex items-center">
-                        @if($canClockIn)
-                            <a href="{{ route('attendance.index') }}"
-                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
-                                <i class="fas fa-clock mr-2"></i>
-                                Clock In
-                            </a>
-                        @elseif($canClockOut)
-                            <a href="{{ route('attendance.index') }}"
-                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
-                                <i class="fas fa-clock mr-2"></i>
-                                Clock Out
-                            </a>
-                        @else
-                            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-gray-100 rounded-md">
-                                <i class="fas fa-check-circle mr-2"></i>
-                                Selesai
-                            </span>
-                        @endif
-                    </div>
-                @endif
-
-                <!-- Refresh Button -->
-                <button onclick="refreshPage()"
-                        class="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-md transition-colors duration-200"
-                        title="Refresh Data">
-                    <i class="fas fa-sync-alt" id="refresh-icon"></i>
-                </button>
-
-                <!-- Notifications -->
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open"
-                            class="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-md transition-colors duration-200"
-                            title="Notifikasi">
-                        <i class="fas fa-bell"></i>
-                        <!-- Notification badge (if any) -->
-                        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"
-                              style="display: none;" id="notification-badge"></span>
-                    </button>
-
-                    <!-- Notification dropdown -->
-                    <div x-show="open"
-                         @click.away="open = false"
-                         x-transition:enter="transition ease-out duration-100"
-                         x-transition:enter-start="transform opacity-0 scale-95"
-                         x-transition:enter-end="transform opacity-100 scale-100"
-                         x-transition:leave="transition ease-in duration-75"
-                         x-transition:leave-start="transform opacity-100 scale-100"
-                         x-transition:leave-end="transform opacity-0 scale-95"
-                         class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                        <div class="py-1">
-                            <div class="px-4 py-2 border-b border-gray-200">
-                                <h3 class="text-sm font-medium text-gray-900">Notifikasi</h3>
-                            </div>
-                            <div class="max-h-64 overflow-y-auto">
-                                <!-- Placeholder notifications -->
-                                <div class="px-4 py-3 text-sm text-gray-500 text-center">
-                                    Tidak ada notifikasi baru
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- User dropdown -->
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open"
@@ -205,21 +134,6 @@
         if (currentTimeElement) {
             currentTimeElement.textContent = `${dateString}, ${timeString}`;
         }
-    }
-
-    // Refresh page function
-    function refreshPage() {
-        const refreshIcon = document.getElementById('refresh-icon');
-        if (refreshIcon) {
-            refreshIcon.classList.add('fa-spin');
-        }
-
-        // If admin, refresh quick stats
-        @if(Auth::user()->isAdmin())
-            refreshQuickStats();
-        @else
-            location.reload();
-        @endif
     }
 
     @if(Auth::user()->isAdmin())
