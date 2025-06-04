@@ -28,9 +28,9 @@ class FaceRecognitionService
             $response = Http::withHeaders([
                 'Accesstoken' => $this->accessToken,
                 'Content-Type' => 'application/json',
-            ])->get($this->baseUrl . '/client/get-counters', [
+            ])->timeout(30)->withBody(json_encode([
                 'trx_id' => $this->generateTransactionId()
-            ]);
+            ]), 'application/json')->get($this->baseUrl . '/client/get-counters');
 
             Log::info('Face API - Get Counters Response', [
                 'status_code' => $response->status(),
@@ -63,6 +63,43 @@ class FaceRecognitionService
     }
 
     /**
+     * Get list of my facegalleries
+     */
+    public function getMyFaceGalleries(): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'Accesstoken' => $this->accessToken,
+                'Content-Type' => 'application/json',
+            ])->timeout(30)->get($this->baseUrl . '/facegallery/my-facegalleries');
+
+            Log::info('Face API - My FaceGalleries Response', [
+                'status_code' => $response->status(),
+                'response_body' => $response->body()
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'status_message' => 'FaceGalleries retrieved',
+                        'facegallery_id' => $data['facegallery_id'] ?? $data
+                    ];
+                }
+
+                return $data;
+            }
+
+            throw new Exception('Failed to get facegalleries: HTTP ' . $response->status() . ' - ' . $response->body());
+        } catch (Exception $e) {
+            Log::error('Face API - My FaceGalleries Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
      * Create new FaceGallery
      */
     public function createFaceGallery(string $faceGalleryId): array
@@ -71,7 +108,7 @@ class FaceRecognitionService
             $response = Http::withHeaders([
                 'Accesstoken' => $this->accessToken,
                 'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/facegallery/create-facegallery', [
+            ])->timeout(30)->post($this->baseUrl . '/facegallery/create-facegallery', [
                 'facegallery_id' => $faceGalleryId,
                 'trx_id' => $this->generateTransactionId()
             ]);
@@ -96,9 +133,52 @@ class FaceRecognitionService
                 return $data;
             }
 
-            throw new Exception('Failed to create FaceGallery: HTTP ' . $response->status() . ' - ' . $response->body());
+            $errorData = $response->json();
+            $errorMessage = $errorData['status_message'] ?? 'HTTP ' . $response->status() . ' - ' . $response->body();
+            throw new Exception('Failed to create FaceGallery: ' . $errorMessage);
         } catch (Exception $e) {
             Log::error('Face API - Create FaceGallery Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Delete FaceGallery
+     */
+    public function deleteFaceGallery(string $faceGalleryId): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'Accesstoken' => $this->accessToken,
+                'Content-Type' => 'application/json',
+            ])->timeout(30)->withBody(json_encode([
+                'facegallery_id' => $faceGalleryId,
+                'trx_id' => $this->generateTransactionId()
+            ]), 'application/json')->delete($this->baseUrl . '/facegallery/delete-facegallery');
+
+            Log::info('Face API - Delete FaceGallery Response', [
+                'status_code' => $response->status(),
+                'response_body' => $response->body()
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'status_message' => 'FaceGallery deleted successfully'
+                    ];
+                }
+
+                return $data;
+            }
+
+            $errorData = $response->json();
+            $errorMessage = $errorData['status_message'] ?? 'HTTP ' . $response->status() . ' - ' . $response->body();
+            throw new Exception('Failed to delete FaceGallery: ' . $errorMessage);
+        } catch (Exception $e) {
+            Log::error('Face API - Delete FaceGallery Error: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -152,6 +232,50 @@ class FaceRecognitionService
     }
 
     /**
+     * List enrolled faces in FaceGallery
+     */
+    public function listFaces(string $faceGalleryId = null): array
+    {
+        try {
+            $galleryId = $faceGalleryId ?: $this->defaultFaceGalleryId;
+
+            $response = Http::withHeaders([
+                'Accesstoken' => $this->accessToken,
+                'Content-Type' => 'application/json',
+            ])->timeout(30)->withBody(json_encode([
+                'facegallery_id' => $galleryId,
+                'trx_id' => $this->generateTransactionId()
+            ]), 'application/json')->get($this->baseUrl . '/facegallery/list-faces');
+
+            Log::info('Face API - List Faces Response', [
+                'status_code' => $response->status(),
+                'response_body' => substr($response->body(), 0, 500)
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'faces' => $data['faces'] ?? $data, // Use 'faces' key or entire response
+                        'status_message' => 'Faces list retrieved'
+                    ];
+                }
+
+                return $data;
+            }
+
+            $errorData = $response->json();
+            $errorMessage = $errorData['status_message'] ?? 'HTTP ' . $response->status() . ' - ' . $response->body();
+            throw new Exception('Failed to list faces: ' . $errorMessage);
+        } catch (Exception $e) {
+            Log::error('Face API - List Faces Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
      * Verify face (1:1 authentication)
      */
     public function verifyFace(string $userId, string $base64Image, string $faceGalleryId = null): array
@@ -167,6 +291,12 @@ class FaceRecognitionService
                 'facegallery_id' => $galleryId,
                 'image' => $base64Image,
                 'trx_id' => $this->generateTransactionId()
+            ]);
+
+            Log::info('Face API - Verify Face Response', [
+                'user_id' => $userId,
+                'status_code' => $response->status(),
+                'response_body' => substr($response->body(), 0, 500)
             ]);
 
             if ($response->successful()) {
@@ -213,6 +343,11 @@ class FaceRecognitionService
                 'trx_id' => $this->generateTransactionId()
             ]);
 
+            Log::info('Face API - Identify Face Response', [
+                'status_code' => $response->status(),
+                'response_body' => substr($response->body(), 0, 500)
+            ]);
+
             if ($response->successful()) {
                 $data = $response->json();
 
@@ -240,6 +375,51 @@ class FaceRecognitionService
     }
 
     /**
+     * Delete enrolled face
+     */
+    public function deleteFace(string $userId, string $faceGalleryId = null): array
+    {
+        try {
+            $galleryId = $faceGalleryId ?: $this->defaultFaceGalleryId;
+
+            $response = Http::withHeaders([
+                'Accesstoken' => $this->accessToken,
+                'Content-Type' => 'application/json',
+            ])->timeout(30)->withBody(json_encode([
+                'user_id' => $userId,
+                'facegallery_id' => $galleryId,
+                'trx_id' => $this->generateTransactionId()
+            ]), 'application/json')->delete($this->baseUrl . '/facegallery/delete-face');
+
+            Log::info('Face API - Delete Face Response', [
+                'user_id' => $userId,
+                'status_code' => $response->status(),
+                'response_body' => $response->body()
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if (!isset($data['status'])) {
+                    return [
+                        'status' => 'success',
+                        'status_message' => 'Face deleted successfully'
+                    ];
+                }
+
+                return $data;
+            }
+
+            $errorData = $response->json();
+            $errorMessage = $errorData['status_message'] ?? 'HTTP ' . $response->status() . ' - ' . $response->body();
+            throw new Exception('Failed to delete face: ' . $errorMessage);
+        } catch (Exception $e) {
+            Log::error('Face API - Delete Face Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
      * Compare two images
      */
     public function compareImages(string $sourceImage, string $targetImage): array
@@ -252,6 +432,11 @@ class FaceRecognitionService
                 'source_image' => $sourceImage,
                 'target_image' => $targetImage,
                 'trx_id' => $this->generateTransactionId()
+            ]);
+
+            Log::info('Face API - Compare Images Response', [
+                'status_code' => $response->status(),
+                'response_body' => substr($response->body(), 0, 500)
             ]);
 
             if ($response->successful()) {
@@ -275,80 +460,6 @@ class FaceRecognitionService
             throw new Exception('Failed to compare images: ' . $errorMessage);
         } catch (Exception $e) {
             Log::error('Face API - Compare Images Error: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * List enrolled faces in FaceGallery
-     */
-    public function listFaces(string $faceGalleryId = null): array
-    {
-        try {
-            $galleryId = $faceGalleryId ?: $this->defaultFaceGalleryId;
-
-            $response = Http::withHeaders([
-                'Accesstoken' => $this->accessToken,
-                'Content-Type' => 'application/json',
-            ])->get($this->baseUrl . '/facegallery/list-faces', [
-                'facegallery_id' => $galleryId,
-                'trx_id' => $this->generateTransactionId()
-            ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-
-                if (!isset($data['status'])) {
-                    return [
-                        'status' => 'success',
-                        'faces' => $data['faces'] ?? $data, // Use 'faces' key or entire response
-                        'status_message' => 'Faces list retrieved'
-                    ];
-                }
-
-                return $data;
-            }
-
-            throw new Exception('Failed to list faces: HTTP ' . $response->status() . ' - ' . $response->body());
-        } catch (Exception $e) {
-            Log::error('Face API - List Faces Error: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Delete enrolled face
-     */
-    public function deleteFace(string $userId, string $faceGalleryId = null): array
-    {
-        try {
-            $galleryId = $faceGalleryId ?: $this->defaultFaceGalleryId;
-
-            $response = Http::withHeaders([
-                'Accesstoken' => $this->accessToken,
-                'Content-Type' => 'application/json',
-            ])->delete($this->baseUrl . '/facegallery/delete-face', [
-                'user_id' => $userId,
-                'facegallery_id' => $galleryId,
-                'trx_id' => $this->generateTransactionId()
-            ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-
-                if (!isset($data['status'])) {
-                    return [
-                        'status' => 'success',
-                        'status_message' => 'Face deleted successfully'
-                    ];
-                }
-
-                return $data;
-            }
-
-            throw new Exception('Failed to delete face: HTTP ' . $response->status() . ' - ' . $response->body());
-        } catch (Exception $e) {
-            Log::error('Face API - Delete Face Error: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -430,5 +541,50 @@ class FaceRecognitionService
         ];
 
         return $errorMessages[$statusCode] ?? 'Kesalahan tidak diketahui';
+    }
+
+    /**
+     * Test API connection and create default FaceGallery if needed
+     */
+    public function testAndSetupAPI(): array
+    {
+        try {
+            // Test API connection
+            $counters = $this->getCounters();
+
+            // Check if default FaceGallery exists
+            $galleries = $this->getMyFaceGalleries();
+
+            $defaultExists = false;
+            if (isset($galleries['facegallery_id']) && is_array($galleries['facegallery_id'])) {
+                $defaultExists = in_array($this->defaultFaceGalleryId, $galleries['facegallery_id']);
+            }
+
+            // Create default FaceGallery if it doesn't exist
+            if (!$defaultExists) {
+                $createResult = $this->createFaceGallery($this->defaultFaceGalleryId);
+
+                return [
+                    'success' => true,
+                    'message' => 'API connected and default FaceGallery created',
+                    'counters' => $counters,
+                    'gallery_created' => $createResult
+                ];
+            }
+
+            return [
+                'success' => true,
+                'message' => 'API connected and default FaceGallery exists',
+                'counters' => $counters,
+                'galleries' => $galleries
+            ];
+
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'API connection failed: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ];
+        }
     }
 }
