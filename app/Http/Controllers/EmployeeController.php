@@ -68,6 +68,7 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'username' => 'required|string|max:255|unique:users',
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
@@ -93,6 +94,7 @@ class EmployeeController extends Controller
         try {
             // Create user account
             $user = User::create([
+                'username' => $request->username,
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
@@ -161,6 +163,12 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee)
     {
         $validator = Validator::make($request->all(), [
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users')->ignore($employee->user_id)
+            ],
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
@@ -197,6 +205,7 @@ class EmployeeController extends Controller
         try {
             // Update user account
             $userData = [
+                'username' => $request->username,
                 'name' => $request->name,
                 'email' => $request->email,
                 'is_active' => $request->status === 'active'
@@ -323,6 +332,7 @@ class EmployeeController extends Controller
             // CSV headers
             fputcsv($file, [
                 'ID Karyawan',
+                'Username',
                 'Nama',
                 'Email',
                 'Telepon',
@@ -340,6 +350,7 @@ class EmployeeController extends Controller
             foreach ($employees as $employee) {
                 fputcsv($file, [
                     $employee->employee_id,
+                    $employee->user->username,
                     $employee->user->name,
                     $employee->user->email,
                     $employee->phone,

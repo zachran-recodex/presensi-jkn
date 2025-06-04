@@ -2,8 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Exceptions\FaceRecognitionException;
-use App\Exceptions\AttendanceException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

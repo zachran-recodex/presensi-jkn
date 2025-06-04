@@ -22,6 +22,7 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'username' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
@@ -47,6 +48,8 @@ class StoreEmployeeRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'username.required' => 'Username wajib diisi.',
+            'username.max' => 'Username maksimal 255 karakter.',
             'name.required' => 'Nama lengkap wajib diisi.',
             'name.max' => 'Nama lengkap maksimal 255 karakter.',
             'email.required' => 'Email wajib diisi.',

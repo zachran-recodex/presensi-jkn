@@ -28,6 +28,7 @@ class SampleEmployeeSeeder extends Seeder
             [
                 'user' => [
                     'name' => 'Budi Santoso',
+                    'username' => 'budi.santoso',
                     'email' => 'budi.santoso@jakakuasanusantara.web.id',
                     'password' => Hash::make('employee123'),
                     'role' => 'user',
@@ -49,6 +50,7 @@ class SampleEmployeeSeeder extends Seeder
             [
                 'user' => [
                     'name' => 'Siti Nurhaliza',
+                    'username' => 'siti.nurhaliza',
                     'email' => 'siti.nurhaliza@jakakuasanusantara.web.id',
                     'password' => Hash::make('employee123'),
                     'role' => 'user',
@@ -70,6 +72,7 @@ class SampleEmployeeSeeder extends Seeder
             [
                 'user' => [
                     'name' => 'Ahmad Fauzi',
+                    'username' => 'ahmad.fauzi',
                     'email' => 'ahmad.fauzi@jakakuasanusantara.web.id',
                     'password' => Hash::make('employee123'),
                     'role' => 'user',
@@ -91,6 +94,7 @@ class SampleEmployeeSeeder extends Seeder
             [
                 'user' => [
                     'name' => 'Dewi Lestari',
+                    'username' => 'dewi.lestari',
                     'email' => 'dewi.lestari@jakakuasanusantara.web.id',
                     'password' => Hash::make('employee123'),
                     'role' => 'user',
@@ -112,6 +116,7 @@ class SampleEmployeeSeeder extends Seeder
             [
                 'user' => [
                     'name' => 'Rudi Hermawan',
+                    'username' => 'rudi.hermawan',
                     'email' => 'rudi.hermawan@jakakuasanusantara.web.id',
                     'password' => Hash::make('employee123'),
                     'role' => 'user',
@@ -133,6 +138,7 @@ class SampleEmployeeSeeder extends Seeder
             [
                 'user' => [
                     'name' => 'Maria Gonzales',
+                    'username' => 'maria.gonzales',
                     'email' => 'maria.gonzales@jakakuasanusantara.web.id',
                     'password' => Hash::make('employee123'),
                     'role' => 'user',
@@ -171,7 +177,7 @@ class SampleEmployeeSeeder extends Seeder
         $this->command->line('');
         $this->command->line('Employee Login Credentials (password: employee123):');
         foreach ($employees as $emp) {
-            $this->command->line('- ' . $emp['user']['email'] . ' (' . $emp['employee']['employee_id'] . ')');
+            $this->command->line('- ' . $emp['user']['username'] . ' (' . $emp['employee']['employee_id'] . ')');
         }
         $this->command->line('');
         $this->command->warn('Please change these passwords after first login!');

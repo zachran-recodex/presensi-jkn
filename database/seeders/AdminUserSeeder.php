@@ -16,9 +16,9 @@ class AdminUserSeeder extends Seeder
     {
         // Create main admin user
         User::create([
+            'username' => 'super-admin',
             'name' => 'Administrator',
             'email' => 'admin@jakakuasanusantara.web.id',
-            'email_verified_at' => now(),
             'password' => Hash::make('admin123456'),
             'role' => 'admin',
             'is_active' => true,
@@ -26,9 +26,9 @@ class AdminUserSeeder extends Seeder
 
         // Create backup admin user
         User::create([
+            'username' => 'admin',
             'name' => 'Admin Backup',
             'email' => 'backup@jakakuasanusantara.web.id',
-            'email_verified_at' => now(),
             'password' => Hash::make('backup123456'),
             'role' => 'admin',
             'is_active' => true,
@@ -36,9 +36,9 @@ class AdminUserSeeder extends Seeder
 
         // Create HR admin user
         User::create([
+            'username' => 'hr-manager',
             'name' => 'HR Manager',
             'email' => 'hr@jakakuasanusantara.web.id',
-            'email_verified_at' => now(),
             'password' => Hash::make('hr123456'),
             'role' => 'admin',
             'is_active' => true,
@@ -47,9 +47,9 @@ class AdminUserSeeder extends Seeder
         $this->command->info('Admin users created successfully!');
         $this->command->line('');
         $this->command->line('Admin Login Credentials:');
-        $this->command->line('1. admin@jakakuasanusantara.web.id / admin123456');
-        $this->command->line('2. backup@jakakuasanusantara.web.id / backup123456');
-        $this->command->line('3. hr@jakakuasanusantara.web.id / hr123456');
+        $this->command->line('1. super-admin / admin123456');
+        $this->command->line('2. admin / backup123456');
+        $this->command->line('3. hr-manager / hr123456');
         $this->command->line('');
         $this->command->warn('Please change these passwords after first login!');
     }

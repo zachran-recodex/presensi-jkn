@@ -25,6 +25,12 @@ class UpdateEmployeeRequest extends FormRequest
         $employee = $this->route('employee');
 
         return [
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users')->ignore($employee->user_id)
+            ],
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
@@ -61,6 +67,8 @@ class UpdateEmployeeRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'username.required' => 'Username wajib diisi.',
+            'username.max' => 'Username maksimal 255 karakter.',
             'name.required' => 'Nama lengkap wajib diisi.',
             'name.max' => 'Nama lengkap maksimal 255 karakter.',
             'email.required' => 'Email wajib diisi.',
