@@ -20,17 +20,13 @@
     <body class="h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 font-sans antialiased">
         <div class="min-h-full flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
             <!-- Header/Logo Section -->
-            <div class="mb-8 text-center">
+            <div class="text-center">
                 <div class="mx-auto bg-white rounded-full p-4 shadow-lg mb-4 w-20 h-20 flex items-center justify-center">
                     <i class="fas fa-user-clock text-3xl text-blue-600"></i>
                 </div>
 
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Sistem Presensi</h1>
-                <p class="text-lg text-gray-600 mb-1">PT. Jaka Kuasa Nusantara</p>
-                <div class="flex items-center justify-center text-sm text-gray-500">
-                    <i class="fas fa-shield-alt mr-2"></i>
-                    <span>Secure & Reliable</span>
-                </div>
+                <p class="text-lg text-gray-600">PT. Jaka Kuasa Nusantara</p>
             </div>
 
             <!-- Main Content Card -->
@@ -70,20 +66,6 @@
             <!-- Footer -->
             <div class="mt-8 text-center text-sm text-gray-500">
                 <p>&copy; {{ date('Y') }} PT. Jaka Kuasa Nusantara. All rights reserved.</p>
-                <div class="mt-2 flex items-center justify-center space-x-4">
-                    <span class="flex items-center">
-                        <i class="fas fa-fingerprint mr-1"></i>
-                        Face Recognition
-                    </span>
-                    <span class="flex items-center">
-                        <i class="fas fa-mobile-alt mr-1"></i>
-                        Mobile Ready
-                    </span>
-                    <span class="flex items-center">
-                        <i class="fas fa-map-marker-alt mr-1"></i>
-                        GPS Tracking
-                    </span>
-                </div>
             </div>
 
             <!-- Background Pattern -->

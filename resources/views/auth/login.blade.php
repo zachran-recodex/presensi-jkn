@@ -79,58 +79,6 @@
                 Masuk
             </button>
         </form>
-
-        <!-- Demo Accounts Info -->
-        <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 class="text-sm font-medium text-blue-900 mb-3">
-                <i class="fas fa-info-circle mr-2"></i>
-                Akun Demo
-            </h4>
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between items-center p-2 bg-white rounded border">
-                    <span class="text-gray-700">
-                        <strong>Admin:</strong> admin@jakakuasanusantara.web.id
-                    </span>
-                    <button type="button"
-                            @click="fillDemo('admin@jakakuasanusantara.web.id', 'admin123456')"
-                            class="text-blue-600 hover:text-blue-800 text-xs">
-                        Gunakan
-                    </button>
-                </div>
-                <div class="flex justify-between items-center p-2 bg-white rounded border">
-                    <span class="text-gray-700">
-                        <strong>Karyawan:</strong> budi.santoso@jakakuasanusantara.web.id
-                    </span>
-                    <button type="button"
-                            @click="fillDemo('budi.santoso@jakakuasanusantara.web.id', 'employee123')"
-                            class="text-blue-600 hover:text-blue-800 text-xs">
-                        Gunakan
-                    </button>
-                </div>
-            </div>
-            <p class="text-xs text-blue-700 mt-3">
-                <i class="fas fa-shield-alt mr-1"></i>
-                Akun demo untuk testing sistem. Gunakan akun Anda yang sebenarnya untuk produksi.
-            </p>
-        </div>
-
-        <!-- System Info -->
-        <div class="mt-6 text-center">
-            <div class="flex items-center justify-center space-x-6 text-xs text-gray-500">
-                <span class="flex items-center">
-                    <i class="fas fa-shield-alt mr-1"></i>
-                    Secure Login
-                </span>
-                <span class="flex items-center">
-                    <i class="fas fa-fingerprint mr-1"></i>
-                    Face Recognition
-                </span>
-                <span class="flex items-center">
-                    <i class="fas fa-map-marker-alt mr-1"></i>
-                    GPS Tracking
-                </span>
-            </div>
-        </div>
     </div>
 
     @push('scripts')
