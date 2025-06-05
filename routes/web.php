@@ -13,11 +13,6 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
 Route::get('/', function () {
@@ -37,12 +32,24 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Attendance routes (for employees)
-Route::middleware(['auth', 'employee'])->group(function () {
+// Attendance routes - Updated with flexible access
+Route::middleware(['auth'])->group(function () {
+    // Attendance form and history (accessible by both admin and employees)
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock-in');
-    Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clock-out');
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
+
+    // Photo routes (with authorization check inside controller)
+    Route::get('/attendance/{attendance}/photo', [AttendanceController::class, 'getPhoto'])->name('attendance.photo');
+    Route::get('/attendance/{attendance}/thumbnail', [AttendanceController::class, 'getThumbnail'])->name('attendance.thumbnail');
+
+    // Clock in/out only for employees with proper checks
+    Route::middleware(['employee'])->group(function () {
+        Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock-in');
+        Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clock-out');
+    });
+
+    // Real-time attendance stats (admin only)
+    Route::get('/attendance/realtime-stats', [AttendanceController::class, 'getRealtimeStats'])->name('attendance.realtime-stats');
 });
 
 // Admin routes
@@ -75,32 +82,22 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Admin attendance history
     Route::get('/admin/attendance-history', [AttendanceController::class, 'history'])->name('admin.attendance.history');
+    Route::get('/admin/attendance-stats', [AttendanceController::class, 'getRealtimeStats'])->name('admin.attendance.stats');
 
     // Face API Testing routes
     Route::prefix('face-api-test')->name('face-api-test.')->group(function () {
-        // Main testing page
         Route::get('/', [App\Http\Controllers\FaceApiTestController::class, 'index'])->name('index');
-
-        // API Connection Testing
         Route::post('/connection', [App\Http\Controllers\FaceApiTestController::class, 'testConnection'])->name('connection');
         Route::post('/counters', [App\Http\Controllers\FaceApiTestController::class, 'getCounters'])->name('counters');
         Route::post('/galleries', [App\Http\Controllers\FaceApiTestController::class, 'getMyFaceGalleries'])->name('galleries');
-
-        // FaceGallery Management
         Route::post('/gallery/create', [App\Http\Controllers\FaceApiTestController::class, 'createFaceGallery'])->name('gallery.create');
         Route::post('/gallery/delete', [App\Http\Controllers\FaceApiTestController::class, 'deleteFaceGallery'])->name('gallery.delete');
-
-        // Face Operations
         Route::post('/enroll', [App\Http\Controllers\FaceApiTestController::class, 'testEnrollFace'])->name('enroll');
         Route::post('/verify', [App\Http\Controllers\FaceApiTestController::class, 'testVerifyFace'])->name('verify');
         Route::post('/identify', [App\Http\Controllers\FaceApiTestController::class, 'testIdentifyFace'])->name('identify');
         Route::post('/compare', [App\Http\Controllers\FaceApiTestController::class, 'testCompareImages'])->name('compare');
-
-        // Face Management
         Route::post('/faces/list', [App\Http\Controllers\FaceApiTestController::class, 'listFaces'])->name('faces.list');
         Route::post('/faces/delete', [App\Http\Controllers\FaceApiTestController::class, 'deleteFace'])->name('faces.delete');
-
-        // Utility
         Route::get('/error-message', [App\Http\Controllers\FaceApiTestController::class, 'getErrorMessage'])->name('error.message');
     });
 });
@@ -111,5 +108,38 @@ Route::middleware('auth')->group(function () {
         ->name('reports.employee')
         ->middleware('can:view,employee');
 });
+
+// Debug route (REMOVE AFTER DEBUGGING)
+Route::middleware(['auth'])->get('/debug-attendance', function () {
+    $user = auth()->user();
+
+    $debug = [
+        'user_id' => $user->id,
+        'user_name' => $user->name,
+        'user_role' => $user->role,
+        'user_is_active' => $user->is_active,
+        'has_employee' => $user->employee ? 'YES' : 'NO',
+    ];
+
+    if ($user->employee) {
+        $debug['employee_id'] = $user->employee->employee_id;
+        $debug['employee_status'] = $user->employee->status;
+        $debug['employee_location'] = $user->employee->location->name ?? 'No Location';
+        $debug['face_enrolled'] = $user->hasFaceEnrolled() ? 'YES' : 'NO';
+        $debug['face_id'] = $user->face_id ?? 'NULL';
+    }
+
+    $debug['middleware_checks'] = [
+        'is_authenticated' => auth()->check(),
+        'has_employee_profile' => $user->employee ? true : false,
+        'employee_is_active' => $user->employee ? ($user->employee->status === 'active') : false,
+        'user_is_active' => $user->is_active,
+        'can_access_attendance' => $user->employee &&
+                                  $user->employee->status === 'active' &&
+                                  $user->is_active
+    ];
+
+    return response()->json($debug, 200, [], JSON_PRETTY_PRINT);
+})->name('debug.attendance');
 
 require __DIR__.'/auth.php';

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Employee;
 use App\Services\FaceRecognitionService;
+use App\Services\ImageProcessingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -13,30 +14,77 @@ use Exception;
 class FaceEnrollmentController extends Controller
 {
     protected $faceService;
+    protected $imageService;
 
-    public function __construct(FaceRecognitionService $faceService)
+    public function __construct(FaceRecognitionService $faceService, ImageProcessingService $imageService)
     {
         $this->middleware(['auth', 'admin']);
         $this->faceService = $faceService;
+        $this->imageService = $imageService;
     }
 
     /**
      * Show face enrollment dashboard
      */
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Employee::with('user')
+        $query = Employee::with(['user', 'location'])
             ->active()
-            ->paginate(20);
+            ->orderBy('created_at', 'desc');
 
-        // Get API counters
+        // Search filter
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            })->orWhere('employee_id', 'like', '%' . $search . '%');
+        }
+
+        // Filter by enrollment status
+        if ($request->has('enrollment_status')) {
+            if ($request->enrollment_status === 'enrolled') {
+                $query->whereHas('user', function($q) {
+                    $q->whereNotNull('face_id');
+                });
+            } elseif ($request->enrollment_status === 'not_enrolled') {
+                $query->whereHas('user', function($q) {
+                    $q->whereNull('face_id');
+                });
+            }
+        }
+
+        // Filter by department
+        if ($request->has('department') && $request->department) {
+            $query->where('department', $request->department);
+        }
+
+        $employees = $query->paginate(20);
+
+        // Get API counters with error handling
         try {
             $apiCounters = $this->faceService->getCounters();
         } catch (Exception $e) {
-            $apiCounters = ['error' => 'Tidak dapat mengambil data API'];
+            Log::warning('Failed to get API counters: ' . $e->getMessage());
+            $apiCounters = [
+                'status' => 'error',
+                'message' => 'API tidak tersedia',
+                'error' => $e->getMessage()
+            ];
         }
 
-        return view('face-enrollment.index', compact('employees', 'apiCounters'));
+        // Get enrollment statistics
+        $stats = $this->getEnrollmentStats();
+
+        // Get departments for filter
+        $departments = Employee::distinct()->pluck('department')->filter()->sort();
+
+        return view('face-enrollment.index', compact(
+            'employees',
+            'apiCounters',
+            'stats',
+            'departments'
+        ));
     }
 
     /**
@@ -44,7 +92,22 @@ class FaceEnrollmentController extends Controller
      */
     public function show(Employee $employee)
     {
-        return view('face-enrollment.form', compact('employee'));
+        $employee->load(['user', 'location']);
+
+        // Check if employee is active
+        if ($employee->status !== 'active') {
+            return redirect()->route('face-enrollment.index')
+                ->with('error', 'Karyawan tidak aktif. Tidak dapat melakukan enrollment.');
+        }
+
+        // Get enrollment history if exists
+        $enrollmentHistory = null;
+        if ($employee->user->hasFaceEnrolled()) {
+            // You can store enrollment history in a separate table if needed
+            // For now, we'll just show current status
+        }
+
+        return view('face-enrollment.form', compact('employee', 'enrollmentHistory'));
     }
 
     /**
@@ -65,16 +128,33 @@ class FaceEnrollmentController extends Controller
         }
 
         try {
-            // Clean base64 string
-            $base64Photo = preg_replace('/^data:image\/[a-z]+;base64,/', '', $request->photo);
-
-            // Validate image
-            if (!$this->faceService->validateBase64Image($base64Photo)) {
+            // Check if employee is active
+            if ($employee->status !== 'active') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Format gambar tidak valid. Gunakan JPG atau PNG.'
+                    'message' => 'Karyawan tidak aktif. Tidak dapat melakukan enrollment.'
                 ], 422);
             }
+
+            // Check if already enrolled
+            if ($employee->user->hasFaceEnrolled()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Karyawan sudah terdaftar. Gunakan re-enrollment jika ingin mendaftar ulang.'
+                ], 422);
+            }
+
+            // Validate and process image
+            $imageValidation = $this->imageService->validateBase64Image($request->photo);
+            if (!$imageValidation['valid']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Format gambar tidak valid: ' . $imageValidation['error']
+                ], 422);
+            }
+
+            // Clean base64 string
+            $base64Photo = preg_replace('/^data:image\/[a-z]+;base64,/', '', $request->photo);
 
             // Generate unique face ID
             $faceId = 'emp_' . $employee->employee_id . '_' . time();
@@ -90,12 +170,30 @@ class FaceEnrollmentController extends Controller
                 // Update user with face_id
                 $employee->user->update(['face_id' => $faceId]);
 
+                // Log enrollment activity
+                Log::info('Face enrollment successful', [
+                    'employee_id' => $employee->employee_id,
+                    'user_id' => $employee->user_id,
+                    'face_id' => $faceId,
+                    'enrolled_by' => auth()->id()
+                ]);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Enrollment wajah berhasil! Karyawan dapat melakukan presensi.',
-                    'face_id' => $faceId
+                    'face_id' => $faceId,
+                    'data' => [
+                        'employee_name' => $employee->user->name,
+                        'employee_id' => $employee->employee_id,
+                        'enrolled_at' => now()->format('d/m/Y H:i:s')
+                    ]
                 ]);
             } else {
+                Log::warning('Face enrollment failed', [
+                    'employee_id' => $employee->employee_id,
+                    'api_response' => $result
+                ]);
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Enrollment gagal: ' . ($result['status_message'] ?? 'Kesalahan tidak diketahui')
@@ -103,18 +201,14 @@ class FaceEnrollmentController extends Controller
             }
 
         } catch (Exception $e) {
-            Log::error('Face enrollment error: ' . $e->getMessage());
+            Log::error('Face enrollment error: ' . $e->getMessage(), [
+                'employee_id' => $employee->employee_id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
             // Handle specific API errors
-            $errorMessage = 'Terjadi kesalahan sistem.';
-
-            if (str_contains($e->getMessage(), 'Face not detected')) {
-                $errorMessage = 'Wajah tidak terdeteksi. Pastikan wajah terlihat jelas di foto.';
-            } elseif (str_contains($e->getMessage(), 'Face too small')) {
-                $errorMessage = 'Wajah terlalu kecil. Dekatkan kamera ke wajah.';
-            } elseif (str_contains($e->getMessage(), 'quota')) {
-                $errorMessage = 'Kuota API Face Recognition habis. Hubungi administrator.';
-            }
+            $errorMessage = $this->getErrorMessage($e);
 
             return response()->json([
                 'success' => false,
@@ -131,13 +225,27 @@ class FaceEnrollmentController extends Controller
         if (!$employee->user->hasFaceEnrolled()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Karyawan belum pernah enrollment sebelumnya.'
+                'message' => 'Karyawan belum pernah enrollment sebelumnya. Gunakan enrollment biasa.'
             ], 422);
         }
 
         try {
             // Delete existing face first
-            $this->faceService->deleteFace($employee->user->face_id);
+            $oldFaceId = $employee->user->face_id;
+
+            try {
+                $this->faceService->deleteFace($oldFaceId);
+                Log::info('Old face deleted for re-enrollment', [
+                    'employee_id' => $employee->employee_id,
+                    'old_face_id' => $oldFaceId
+                ]);
+            } catch (Exception $e) {
+                Log::warning('Failed to delete old face, continuing with re-enrollment', [
+                    'employee_id' => $employee->employee_id,
+                    'old_face_id' => $oldFaceId,
+                    'error' => $e->getMessage()
+                ]);
+            }
 
             // Clear face_id
             $employee->user->update(['face_id' => null]);
@@ -146,11 +254,13 @@ class FaceEnrollmentController extends Controller
             return $this->enroll($request, $employee);
 
         } catch (Exception $e) {
-            Log::error('Face re-enrollment error: ' . $e->getMessage());
+            Log::error('Face re-enrollment error: ' . $e->getMessage(), [
+                'employee_id' => $employee->employee_id
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal melakukan re-enrollment: ' . $e->getMessage()
+                'message' => 'Gagal melakukan re-enrollment: ' . $this->getErrorMessage($e)
             ], 500);
         }
     }
@@ -168,23 +278,37 @@ class FaceEnrollmentController extends Controller
         }
 
         try {
+            $faceId = $employee->user->face_id;
+
             // Delete from Biznet API
-            $this->faceService->deleteFace($employee->user->face_id);
+            $this->faceService->deleteFace($faceId);
 
             // Clear face_id from user
             $employee->user->update(['face_id' => null]);
 
+            Log::info('Face enrollment deleted', [
+                'employee_id' => $employee->employee_id,
+                'face_id' => $faceId,
+                'deleted_by' => auth()->id()
+            ]);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Data wajah berhasil dihapus.'
+                'message' => 'Data wajah berhasil dihapus.',
+                'data' => [
+                    'employee_name' => $employee->user->name,
+                    'employee_id' => $employee->employee_id
+                ]
             ]);
 
         } catch (Exception $e) {
-            Log::error('Face deletion error: ' . $e->getMessage());
+            Log::error('Face deletion error: ' . $e->getMessage(), [
+                'employee_id' => $employee->employee_id
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus data wajah: ' . $e->getMessage()
+                'message' => 'Gagal menghapus data wajah: ' . $this->getErrorMessage($e)
             ], 500);
         }
     }
@@ -213,34 +337,47 @@ class FaceEnrollmentController extends Controller
         }
 
         try {
-            // Clean base64 string
-            $base64Photo = preg_replace('/^data:image\/[a-z]+;base64,/', '', $request->photo);
-
-            // Validate image
-            if (!$this->faceService->validateBase64Image($base64Photo)) {
+            // Validate and process image
+            $imageValidation = $this->imageService->validateBase64Image($request->photo);
+            if (!$imageValidation['valid']) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Format gambar tidak valid.'
+                    'message' => 'Format gambar tidak valid: ' . $imageValidation['error']
                 ], 422);
             }
 
+            // Clean base64 string
+            $base64Photo = preg_replace('/^data:image\/[a-z]+;base64,/', '', $request->photo);
+
             // Call verify API
             $result = $this->faceService->verifyFace($employee->user->face_id, $base64Photo);
+
+            $similarity = ($result['similarity'] ?? 0) * 100;
+            $threshold = config('services.biznet_face.similarity_threshold', 0.75) * 100;
 
             return response()->json([
                 'success' => true,
                 'result' => $result,
                 'message' => $result['verified'] ?
-                    'Verifikasi berhasil! Similarity: ' . number_format($result['similarity'] * 100, 2) . '%' :
-                    'Verifikasi gagal. Similarity: ' . number_format($result['similarity'] * 100, 2) . '%'
+                    "✓ Verifikasi berhasil! Similarity: {$similarity}% (threshold: {$threshold}%)" :
+                    "✗ Verifikasi gagal. Similarity: {$similarity}% (threshold: {$threshold}%)",
+                'data' => [
+                    'verified' => $result['verified'] ?? false,
+                    'similarity' => $similarity,
+                    'threshold' => $threshold,
+                    'masker' => $result['masker'] ?? $result['mask'] ?? false,
+                    'user_name' => $result['user_name'] ?? $employee->user->name
+                ]
             ]);
 
         } catch (Exception $e) {
-            Log::error('Face verification test error: ' . $e->getMessage());
+            Log::error('Face verification test error: ' . $e->getMessage(), [
+                'employee_id' => $employee->employee_id
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal test verifikasi: ' . $e->getMessage()
+                'message' => 'Gagal test verifikasi: ' . $this->getErrorMessage($e)
             ], 500);
         }
     }
@@ -250,27 +387,18 @@ class FaceEnrollmentController extends Controller
      */
     public function stats()
     {
-        $totalEmployees = Employee::active()->count();
-        $enrolledEmployees = User::whereNotNull('face_id')
-            ->whereHas('employee', function($q) {
-                $q->where('status', 'active');
-            })
-            ->count();
+        $stats = $this->getEnrollmentStats();
 
-        $pendingEmployees = $totalEmployees - $enrolledEmployees;
-        $enrollmentRate = $totalEmployees > 0 ? round(($enrolledEmployees / $totalEmployees) * 100, 2) : 0;
-
+        // Get API counters
         try {
             $apiCounters = $this->faceService->getCounters();
         } catch (Exception $e) {
-            $apiCounters = ['error' => 'API tidak tersedia'];
+            $apiCounters = ['error' => 'API tidak tersedia: ' . $e->getMessage()];
         }
 
         return response()->json([
-            'total_employees' => $totalEmployees,
-            'enrolled_employees' => $enrolledEmployees,
-            'pending_employees' => $pendingEmployees,
-            'enrollment_rate' => $enrollmentRate,
+            'success' => true,
+            'stats' => $stats,
             'api_counters' => $apiCounters
         ]);
     }
@@ -291,8 +419,173 @@ class FaceEnrollmentController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengambil daftar wajah: ' . $e->getMessage()
+                'message' => 'Gagal mengambil daftar wajah: ' . $this->getErrorMessage($e)
             ], 500);
         }
+    }
+
+    /**
+     * Bulk enrollment for multiple employees
+     */
+    public function bulkEnroll(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'employee_ids' => 'required|array|min:1',
+            'employee_ids.*' => 'exists:employees,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak valid: ' . $validator->errors()->first()
+            ], 422);
+        }
+
+        $results = [];
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($request->employee_ids as $employeeId) {
+            $employee = Employee::find($employeeId);
+
+            if (!$employee || $employee->user->hasFaceEnrolled()) {
+                $results[] = [
+                    'employee_id' => $employee?->employee_id ?? $employeeId,
+                    'name' => $employee?->user->name ?? 'Unknown',
+                    'status' => 'skipped',
+                    'message' => 'Sudah enrolled atau tidak ditemukan'
+                ];
+                continue;
+            }
+
+            // For bulk enrollment, we need photos to be uploaded separately
+            // This is just a placeholder for the functionality
+            $results[] = [
+                'employee_id' => $employee->employee_id,
+                'name' => $employee->user->name,
+                'status' => 'pending',
+                'message' => 'Menunggu foto untuk enrollment'
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Proses bulk enrollment dimulai. {$successCount} berhasil, {$failCount} gagal.",
+            'results' => $results
+        ]);
+    }
+
+    /**
+     * Export enrollment data
+     */
+    public function export(Request $request)
+    {
+        $employees = Employee::with(['user', 'location'])
+            ->active()
+            ->get();
+
+        $filename = 'face_enrollment_' . now()->format('Y-m-d_His') . '.csv';
+
+        return response()->streamDownload(function() use ($employees) {
+            $file = fopen('php://output', 'w');
+
+            // CSV headers
+            fputcsv($file, [
+                'Employee ID',
+                'Name',
+                'Email',
+                'Department',
+                'Position',
+                'Location',
+                'Face Enrolled',
+                'Face ID',
+                'Status'
+            ]);
+
+            // Data rows
+            foreach ($employees as $employee) {
+                fputcsv($file, [
+                    $employee->employee_id,
+                    $employee->user->name,
+                    $employee->user->email,
+                    $employee->department,
+                    $employee->position,
+                    $employee->location->name,
+                    $employee->user->hasFaceEnrolled() ? 'Yes' : 'No',
+                    $employee->user->face_id ?? '-',
+                    ucfirst($employee->status)
+                ]);
+            }
+
+            fclose($file);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /**
+     * Get enrollment statistics
+     */
+    private function getEnrollmentStats(): array
+    {
+        $totalEmployees = Employee::active()->count();
+        $enrolledEmployees = User::whereNotNull('face_id')
+            ->whereHas('employee', function($q) {
+                $q->where('status', 'active');
+            })
+            ->count();
+
+        $pendingEmployees = $totalEmployees - $enrolledEmployees;
+        $enrollmentRate = $totalEmployees > 0 ? round(($enrolledEmployees / $totalEmployees) * 100, 2) : 0;
+
+        return [
+            'total_employees' => $totalEmployees,
+            'enrolled_employees' => $enrolledEmployees,
+            'pending_employees' => $pendingEmployees,
+            'enrollment_rate' => $enrollmentRate,
+            'departments' => Employee::selectRaw('department, COUNT(*) as total, SUM(CASE WHEN users.face_id IS NOT NULL THEN 1 ELSE 0 END) as enrolled')
+                ->join('users', 'employees.user_id', '=', 'users.id')
+                ->where('employees.status', 'active')
+                ->groupBy('department')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'department' => $item->department,
+                        'total' => $item->total,
+                        'enrolled' => $item->enrolled,
+                        'rate' => $item->total > 0 ? round(($item->enrolled / $item->total) * 100, 1) : 0
+                    ];
+                })
+        ];
+    }
+
+    /**
+     * Get user-friendly error message
+     */
+    private function getErrorMessage(Exception $e): string
+    {
+        $message = $e->getMessage();
+
+        if (str_contains($message, 'Face not detected')) {
+            return 'Wajah tidak terdeteksi pada foto. Pastikan wajah terlihat jelas dan pencahayaan cukup.';
+        }
+
+        if (str_contains($message, 'Face too small')) {
+            return 'Wajah terlalu kecil. Dekatkan kamera ke wajah.';
+        }
+
+        if (str_contains($message, 'quota') || str_contains($message, 'limit')) {
+            return 'Kuota API Face Recognition habis. Hubungi administrator.';
+        }
+
+        if (str_contains($message, 'not found')) {
+            return 'Data wajah tidak ditemukan dalam sistem.';
+        }
+
+        if (str_contains($message, 'token') || str_contains($message, 'unauthorized')) {
+            return 'Token API tidak valid. Hubungi administrator.';
+        }
+
+        return 'Terjadi kesalahan sistem. Silakan coba lagi atau hubungi administrator.';
     }
 }

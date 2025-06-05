@@ -7,339 +7,269 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            <!-- Welcome Section -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h1 class="text-2xl font-bold">Selamat Datang, {{ $employee->user->name }}!</h1>
-                            <p class="text-blue-100 mt-1">{{ $employee->position }} - {{ $employee->department }}</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-sm opacity-90">{{ now()->format('l, d F Y') }}</div>
-                            <div class="text-2xl font-bold" x-data="clock()" x-text="time"></div>
+            <!-- Employee Info Card -->
+            @if($employee)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Selamat datang, {{ $employee->user->name }}!</h3>
+                                <p class="text-sm text-gray-600">{{ $employee->position }} - {{ $employee->department }}</p>
+                                <p class="text-sm text-gray-500">{{ $employee->location->name }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-600">{{ now()->format('l, d F Y') }}</p>
+                                <p class="text-lg font-semibold text-gray-900">{{ now()->format('H:i') }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
-            <!-- Today's Status & Quick Actions -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <!-- Today's Attendance Status -->
-                <div class="lg:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Status Presensi Hari Ini</h3>
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Attendance Action -->
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Presensi Hari Ini</h3>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Clock In Status -->
-                            <div class="border rounded-lg p-4 {{ $todayClockIn ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50' }}">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0">
-                                        @if($todayClockIn)
-                                            <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        @else
-                                            <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        @endif
+                        @if($employee && $employee->status === 'active' && $employee->user->is_active)
+                            @if(!$employee->user->hasFaceEnrolled())
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+                                    <div class="flex">
+                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        </svg>
+                                        <div>
+                                            <p class="text-yellow-800 font-medium">Wajah Belum Terdaftar</p>
+                                            <p class="text-yellow-700 text-sm mt-1">Silakan hubungi admin untuk melakukan enrollment wajah sebelum dapat melakukan presensi.</p>
+                                        </div>
                                     </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm font-medium {{ $todayClockIn ? 'text-green-800' : 'text-gray-600' }}">Clock In</p>
-                                        @if($todayClockIn)
-                                            <p class="text-lg font-semibold {{ $todayClockIn->is_late ? 'text-red-600' : 'text-green-900' }}">
-                                                {{ $todayClockIn->attendance_time->format('H:i:s') }}
-                                            </p>
-                                            @if($todayClockIn->is_late)
-                                                <p class="text-xs text-red-600">Terlambat {{ $todayClockIn->late_minutes }} menit</p>
-                                            @else
-                                                <p class="text-xs text-green-600">Tepat waktu</p>
-                                            @endif
-                                        @else
-                                            <p class="text-sm text-gray-500">Belum clock in</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Clock Out Status -->
-                            <div class="border rounded-lg p-4 {{ $todayClockOut ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50' }}">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0">
-                                        @if($todayClockOut)
-                                            <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        @else
-                                            <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m10 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm font-medium {{ $todayClockOut ? 'text-green-800' : 'text-gray-600' }}">Clock Out</p>
-                                        @if($todayClockOut)
-                                            <p class="text-lg font-semibold text-green-900">
-                                                {{ $todayClockOut->attendance_time->format('H:i:s') }}
-                                            </p>
-                                            @if($todayClockIn && $todayClockOut)
-                                                @php
-                                                    $workDuration = $todayClockIn->attendance_time->diffInHours($todayClockOut->attendance_time, true);
-                                                @endphp
-                                                <p class="text-xs text-green-600">Durasi: {{ number_format($workDuration, 1) }} jam</p>
-                                            @endif
-                                        @else
-                                            <p class="text-sm text-gray-500">Belum clock out</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Action Button -->
-                        <div class="mt-6">
-                            @if($canClockIn)
-                                <a href="{{ route('attendance.index') }}"
-                                   class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 flex items-center justify-center space-x-2 font-medium">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    <span>Clock In Sekarang</span>
-                                </a>
-                            @elseif($canClockOut)
-                                <a href="{{ route('attendance.index') }}"
-                                   class="w-full bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 flex items-center justify-center space-x-2 font-medium">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m10 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    <span>Clock Out Sekarang</span>
-                                </a>
-                            @else
-                                <div class="w-full bg-gray-100 text-gray-600 px-4 py-3 rounded-lg flex items-center justify-center space-x-2 font-medium">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span>Presensi Hari Ini Selesai</span>
                                 </div>
                             @endif
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Work Schedule Info -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Jadwal Kerja</h3>
+                            <!-- Today's Status -->
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="text-center p-3 {{ $todayClockIn ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
+                                    <div class="flex items-center justify-center mb-2">
+                                        @if($todayClockIn)
+                                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        @else
+                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm font-medium {{ $todayClockIn ? 'text-green-900' : 'text-gray-700' }}">Clock In</p>
+                                    <p class="text-xs {{ $todayClockIn ? 'text-green-700' : 'text-gray-500' }}">
+                                        @if($todayClockIn)
+                                            {{ $todayClockIn->attendance_time->format('H:i') }}
+                                            @if($todayClockIn->is_late)
+                                                <br><span class="text-red-600">Terlambat</span>
+                                            @endif
+                                        @else
+                                            Belum Clock In
+                                        @endif
+                                    </p>
+                                </div>
 
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Jam Masuk</span>
-                                <span class="font-medium">{{ $workSchedule['start_time'] }}</span>
+                                <div class="text-center p-3 {{ $todayClockOut ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
+                                    <div class="flex items-center justify-center mb-2">
+                                        @if($todayClockOut)
+                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        @else
+                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m10 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm font-medium {{ $todayClockOut ? 'text-blue-900' : 'text-gray-700' }}">Clock Out</p>
+                                    <p class="text-xs {{ $todayClockOut ? 'text-blue-700' : 'text-gray-500' }}">
+                                        @if($todayClockOut)
+                                            {{ $todayClockOut->attendance_time->format('H:i') }}
+                                        @else
+                                            Belum Clock Out
+                                        @endif
+                                    </p>
+                                </div>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Jam Pulang</span>
-                                <span class="font-medium">{{ $workSchedule['end_time'] }}</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Jenis Jam Kerja</span>
-                                <span class="text-sm {{ $workSchedule['is_flexible'] ? 'text-green-600' : 'text-blue-600' }}">
-                                    {{ $workSchedule['is_flexible'] ? 'Fleksibel' : 'Tetap' }}
-                                </span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Lokasi</span>
-                                <span class="text-sm font-medium">{{ $workSchedule['location'] }}</span>
-                            </div>
-                        </div>
 
-                        <!-- Face Enrollment Status -->
-                        <div class="mt-6 pt-4 border-t">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Status Wajah</span>
-                                @if($employee->user->hasFaceEnrolled())
-                                    <span class="text-sm text-green-600 flex items-center">
-                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        Terdaftar
-                                    </span>
+                            <!-- Action Button -->
+                            <div class="text-center">
+                                @if($canClockIn || $canClockOut)
+                                    <a href="{{ route('attendance.index') }}"
+                                       class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white {{ $canClockIn ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' }} focus:outline-none focus:ring-2 focus:ring-offset-2 {{ $canClockIn ? 'focus:ring-green-500' : 'focus:ring-red-500' }}">
+                                        @if($canClockIn)
+                                            <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                            </svg>
+                                            Clock In Sekarang
+                                        @else
+                                            <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m10 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                            </svg>
+                                            Clock Out Sekarang
+                                        @endif
+                                    </a>
                                 @else
-                                    <span class="text-sm text-red-600 flex items-center">
-                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    <div class="text-gray-500">
+                                        <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
-                                        Belum Terdaftar
-                                    </span>
+                                        <p class="text-sm">Presensi hari ini sudah selesai</p>
+                                    </div>
                                 @endif
                             </div>
-                        </div>
+                        @else
+                            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-red-800 font-medium">Tidak Dapat Mengakses Presensi</p>
+                                        <p class="text-red-700 text-sm mt-1">
+                                            @if(!$employee)
+                                                Profil karyawan tidak ditemukan. Hubungi admin.
+                                            @elseif($employee->status !== 'active')
+                                                Akun karyawan tidak aktif. Status: {{ ucfirst($employee->status) }}
+                                            @elseif(!$employee->user->is_active)
+                                                Akun pengguna tidak aktif. Hubungi admin.
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
+
+                <!-- Work Schedule -->
+                @if($employee)
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6 bg-white border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Jadwal Kerja</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Jam Masuk:</span>
+                                    <span class="text-sm font-medium">{{ $workSchedule['start_time'] }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Jam Pulang:</span>
+                                    <span class="text-sm font-medium">{{ $workSchedule['end_time'] }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Fleksibel:</span>
+                                    <span class="text-sm font-medium {{ $workSchedule['is_flexible'] ? 'text-green-600' : 'text-gray-900' }}">
+                                        {{ $workSchedule['is_flexible'] ? 'Ya' : 'Tidak' }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Lokasi:</span>
+                                    <span class="text-sm font-medium">{{ $workSchedule['location'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Monthly Summary -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Ringkasan Bulan Ini</h3>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-blue-600">{{ $monthlySummary['present_days'] }}</div>
-                            <div class="text-sm text-gray-600">Hari Hadir</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-red-600">{{ $monthlySummary['late_days'] }}</div>
-                            <div class="text-sm text-gray-600">Hari Terlambat</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-green-600">{{ number_format($monthlySummary['total_work_hours'], 1) }}</div>
-                            <div class="text-sm text-gray-600">Total Jam Kerja</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-purple-600">
-                                @if($monthlySummary['present_days'] > 0)
-                                    {{ number_format((($monthlySummary['present_days'] - $monthlySummary['late_days']) / $monthlySummary['present_days']) * 100, 1) }}%
-                                @else
-                                    0%
-                                @endif
+            @if($employee)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Ringkasan Bulan Ini</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                <p class="text-2xl font-bold text-blue-600">{{ $monthlySummary['present_days'] }}</p>
+                                <p class="text-sm text-blue-800">Hari Hadir</p>
                             </div>
-                            <div class="text-sm text-gray-600">Kedisiplinan</div>
+                            <div class="text-center p-4 bg-red-50 rounded-lg">
+                                <p class="text-2xl font-bold text-red-600">{{ $monthlySummary['late_days'] }}</p>
+                                <p class="text-sm text-red-800">Hari Terlambat</p>
+                            </div>
+                            <div class="text-center p-4 bg-green-50 rounded-lg">
+                                <p class="text-2xl font-bold text-green-600">{{ number_format($monthlySummary['total_work_hours'], 1) }}</p>
+                                <p class="text-sm text-green-800">Total Jam Kerja</p>
+                            </div>
+                            <div class="text-center p-4 bg-purple-50 rounded-lg">
+                                <p class="text-2xl font-bold text-purple-600">
+                                    @if($monthlySummary['present_days'] > 0)
+                                        {{ number_format((($monthlySummary['present_days'] - $monthlySummary['late_days']) / $monthlySummary['present_days']) * 100, 1) }}%
+                                    @else
+                                        0%
+                                    @endif
+                                </p>
+                                <p class="text-sm text-purple-800">Kedisiplinan</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
-            <!-- Recent Attendance History -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Riwayat Presensi (7 Hari Terakhir)</h3>
-                        <a href="{{ route('attendance.history') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            Lihat Semua
-                        </a>
-                    </div>
-
-                    @if($recentAttendances->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($recentAttendances as $date => $dayAttendances)
-                                <div class="border rounded-lg p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <h4 class="font-medium text-gray-900">
-                                            {{ \Carbon\Carbon::parse($date)->format('l, d F Y') }}
-                                        </h4>
-                                        <div class="text-sm text-gray-500">
-                                            {{ $dayAttendances->count() }} record{{ $dayAttendances->count() > 1 ? 's' : '' }}
-                                        </div>
+            <!-- Recent Attendance -->
+            @if($employee && $recentAttendances->count() > 0)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Presensi 7 Hari Terakhir</h3>
+                            <a href="{{ route('attendance.history') }}" class="text-blue-600 hover:text-blue-800 text-sm">
+                                Lihat Semua
+                            </a>
+                        </div>
+                        <div class="space-y-3">
+                            @foreach($recentAttendances->take(5) as $date => $dayAttendances)
+                                <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</p>
+                                        <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($date)->format('l') }}</p>
                                     </div>
-
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        @foreach(['clock_in', 'clock_out'] as $type)
-                                            @php
-                                                $attendance = $dayAttendances->where('type', $type)->where('status', 'success')->first();
-                                            @endphp
-                                            <div class="flex items-center space-x-3">
-                                                <div class="w-3 h-3 rounded-full {{ $attendance ? 'bg-green-500' : 'bg-gray-300' }}"></div>
-                                                <div class="flex-1">
-                                                    <div class="text-sm font-medium">
-                                                        {{ $type === 'clock_in' ? 'Clock In' : 'Clock Out' }}
-                                                    </div>
-                                                    @if($attendance)
-                                                        <div class="text-sm text-gray-600">
-                                                            {{ $attendance->attendance_time->format('H:i:s') }}
-                                                            @if($attendance->is_late && $type === 'clock_in')
-                                                                <span class="text-red-600 ml-1">(+{{ $attendance->late_minutes }}m)</span>
-                                                            @endif
-                                                        </div>
-                                                    @else
-                                                        <div class="text-sm text-gray-400">-</div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                    <div class="flex space-x-4 text-sm">
+                                        @php
+                                            $clockIn = $dayAttendances->where('type', 'clock_in')->first();
+                                            $clockOut = $dayAttendances->where('type', 'clock_out')->first();
+                                        @endphp
+                                        <div class="text-center">
+                                            <p class="text-xs text-gray-500">Masuk</p>
+                                            <p class="font-medium {{ $clockIn ? ($clockIn->is_late ? 'text-red-600' : 'text-green-600') : 'text-gray-400' }}">
+                                                {{ $clockIn ? $clockIn->attendance_time->format('H:i') : '-' }}
+                                            </p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-xs text-gray-500">Pulang</p>
+                                            <p class="font-medium {{ $clockOut ? 'text-blue-600' : 'text-gray-400' }}">
+                                                {{ $clockOut ? $clockOut->attendance_time->format('H:i') : '-' }}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
-                    @else
-                        <div class="text-center py-8">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">Belum ada riwayat presensi</h3>
-                            <p class="mt-1 text-sm text-gray-500">Mulai melakukan presensi untuk melihat riwayat.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Quick Links -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Menu Cepat</h3>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <a href="{{ route('attendance.index') }}"
-                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                            <svg class="w-8 h-8 text-blue-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="text-sm font-medium text-gray-900">Presensi</span>
-                        </a>
-
-                        <a href="{{ route('attendance.history') }}"
-                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                            <svg class="w-8 h-8 text-green-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            <span class="text-sm font-medium text-gray-900">Riwayat</span>
-                        </a>
-
-                        @if($employee)
-                            <a href="{{ route('reports.employee', $employee) }}"
-                               class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                                <svg class="w-8 h-8 text-purple-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z" />
-                                </svg>
-                                <span class="text-sm font-medium text-gray-900">Laporan</span>
-                            </a>
-                        @endif
-
-                        <a href="{{ route('profile.edit') }}"
-                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                            <svg class="w-8 h-8 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span class="text-sm font-medium text-gray-900">Profil</span>
-                        </a>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 
-    @push('scripts')
-    <script>
-        function clock() {
-            return {
-                time: '',
-                init() {
-                    this.updateTime();
-                    setInterval(() => {
-                        this.updateTime();
-                    }, 1000);
-                },
-                updateTime() {
-                    const now = new Date();
-                    this.time = now.toLocaleTimeString('id-ID', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                }
-            }
-        }
-    </script>
-    @endpush
+    @if(!$employee)
+        <!-- Alert for missing employee profile -->
+        <div x-data="{ show: true }" x-show="show" class="fixed bottom-4 right-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg max-w-sm">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800">Profil Karyawan Tidak Ditemukan</p>
+                    <p class="text-sm text-red-700 mt-1">Hubungi admin untuk membuat profil karyawan.</p>
+                    <button @click="show = false" class="mt-2 text-xs text-red-600 hover:text-red-800">Tutup</button>
+                </div>
+            </div>
+        </div>
+    @endif
 </x-app-layout>
