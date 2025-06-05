@@ -113,7 +113,14 @@
                                 <div class="flex-1">
                                     <p class="text-green-800 font-medium">API Connected</p>
                                     @if(isset($apiCounters['remaining_limit']))
-                                        <p class="text-green-700 text-sm">Remaining quota: {{ $apiCounters['remaining_limit'] }}</p>
+                                        <p class="text-green-700 text-sm">
+                                            Remaining quota:
+                                            @if(is_array($apiCounters['remaining_limit']))
+                                                {{ json_encode($apiCounters['remaining_limit']) }}
+                                            @else
+                                                {{ $apiCounters['remaining_limit'] }}
+                                            @endif
+                                        </p>
                                     @endif
                                 </div>
                                 <div class="flex space-x-2">
