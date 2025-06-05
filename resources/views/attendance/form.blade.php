@@ -451,35 +451,80 @@
 
                     const options = {
                         enableHighAccuracy: true,
-                        timeout: 30000,
-                        maximumAge: 10000
+                        timeout: 60000, // Meningkatkan timeout dari 30000 menjadi 60000 ms
+                        maximumAge: 0 // Mengurangi maximumAge untuk mendapatkan posisi terbaru
                     };
 
                     try {
+                        // Tambahkan indikator loading
+                        this.locationErrorMessage = 'Sedang mencari lokasi GPS...';
+
+                        // Coba reset izin geolocation dengan meminta ulang
+                        if (navigator.permissions && navigator.permissions.query) {
+                            try {
+                                const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+                                if (permissionStatus.state === 'denied') {
+                                    // Jika izin ditolak di level browser
+                                    this.locationError = true;
+                                    this.locationErrorMessage = 'Izin lokasi ditolak di browser. Silakan buka pengaturan browser dan izinkan akses lokasi untuk website ini, lalu refresh halaman.';
+                                    return;
+                                }
+                            } catch (permErr) {
+                                console.log('Permission check error:', permErr);
+                                // Lanjutkan meskipun pemeriksaan izin gagal
+                            }
+                        }
+
                         const position = await new Promise((resolve, reject) => {
-                            navigator.geolocation.getCurrentPosition(resolve, reject, options);
+                            // Gunakan watchPosition untuk mendapatkan pembaruan lokasi berkelanjutan
+                            const watchId = navigator.geolocation.watchPosition(
+                                (pos) => {
+                                    // Hentikan watch setelah mendapatkan posisi yang akurat
+                                    if (pos.coords.accuracy < 100) {
+                                        navigator.geolocation.clearWatch(watchId);
+                                        resolve(pos);
+                                    }
+                                },
+                                (err) => {
+                                    // Tangani error khusus watchPosition
+                                    navigator.geolocation.clearWatch(watchId);
+                                    reject(err);
+                                },
+                                options
+                            );
+
+                            // Fallback ke getCurrentPosition jika watchPosition tidak mendapatkan hasil akurat
+                            setTimeout(() => {
+                                navigator.geolocation.getCurrentPosition(resolve, reject, options);
+                            }, 2000); // Tunggu 2 detik sebelum mencoba getCurrentPosition
+
+                            // Set timeout untuk membersihkan watch jika terlalu lama
+                            setTimeout(() => {
+                                navigator.geolocation.clearWatch(watchId);
+                            }, options.timeout - 5000); // Bersihkan 5 detik sebelum timeout utama
                         });
 
                         this.latitude = position.coords.latitude;
                         this.longitude = position.coords.longitude;
                         this.accuracy = Math.round(position.coords.accuracy);
                         this.locationReady = true;
+                        this.locationErrorMessage = '';
                     } catch (error) {
                         console.error('Location error:', error);
                         this.locationError = true;
 
                         switch (error.code) {
-                            case error.PERMISSION_DENIED:
-                                this.locationErrorMessage = 'Izin akses lokasi ditolak. Silakan berikan izin dan coba lagi.';
+                            case 1: // PERMISSION_DENIED
+                                this.locationErrorMessage = 'Izin akses lokasi ditolak. Silakan buka pengaturan browser, izinkan akses lokasi untuk website ini, lalu refresh halaman.';
                                 break;
-                            case error.POSITION_UNAVAILABLE:
-                                this.locationErrorMessage = 'Lokasi tidak tersedia. Pastikan GPS aktif.';
+                            case 2: // POSITION_UNAVAILABLE
+                                this.locationErrorMessage = 'Lokasi tidak tersedia. Pastikan GPS aktif dan coba refresh halaman. Jika menggunakan WiFi, coba gunakan koneksi data seluler.';
                                 break;
-                            case error.TIMEOUT:
-                                this.locationErrorMessage = 'Timeout mendapatkan lokasi. Coba lagi.';
+                            case 3: // TIMEOUT
+                                this.locationErrorMessage = 'Timeout mendapatkan lokasi. Pastikan GPS aktif dan coba lagi. Jika berada di dalam ruangan, coba pindah ke dekat jendela atau area terbuka.';
                                 break;
                             default:
-                                this.locationErrorMessage = 'Gagal mendapatkan lokasi: ' + error.message;
+                                this.locationErrorMessage = 'Gagal mendapatkan lokasi: ' + (error.message || 'Error tidak diketahui') + '. Coba refresh halaman atau gunakan perangkat lain.';
                                 break;
                         }
                     }
