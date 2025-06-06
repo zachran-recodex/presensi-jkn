@@ -317,60 +317,28 @@ class AttendanceController extends Controller
             // Call Biznet Face API
             $result = $this->faceService->verifyFace($faceId, $base64Photo);
 
-            // ADD DEBUG LOGGING
-            Log::info('Face Verification API Response', [
+            // Log for monitoring (optional - can be removed in production)
+            Log::info('Face verification completed', [
                 'face_id' => $faceId,
-                'raw_response' => $result,
-                'response_keys' => array_keys($result),
-                'similarity_value' => $result['similarity'] ?? 'NOT_FOUND',
-                'confidence_level' => $result['confidence_level'] ?? 'NOT_FOUND',
-                'verified' => $result['verified'] ?? 'NOT_FOUND'
+                'verified' => $result['verified'] ?? false,
+                'similarity' => $result['similarity'] ?? 0,
+                'user_name' => $result['user_name'] ?? ''
             ]);
 
-            // Check for different possible field names
-            $similarity = 0;
-            
-            // Try different field names that API might use
-            if (isset($result['similarity'])) {
-                $similarity = $result['similarity'];
-            } elseif (isset($result['confidence_level'])) {
-                $similarity = $result['confidence_level'];
-            } elseif (isset($result['confidence'])) {
-                $similarity = $result['confidence'];
-            } elseif (isset($result['score'])) {
-                $similarity = $result['score'];
-            }
-
-            // Convert to decimal if it's percentage (0-100 to 0-1)
-            if ($similarity > 1) {
-                $similarity = $similarity / 100;
-            }
-
-            // Normalize response
-            $normalizedResult = [
+            // Normalize response - the service now handles risetai wrapper extraction
+            return [
                 'verified' => $result['verified'] ?? false,
-                'similarity' => $similarity,
+                'similarity' => $result['similarity'] ?? 0,
                 'masker' => $result['masker'] ?? $result['mask'] ?? false,
                 'status' => $result['status'] ?? '',
                 'status_message' => $result['status_message'] ?? '',
                 'user_name' => $result['user_name'] ?? ''
             ];
 
-            // ADD DEBUG LOGGING FOR NORMALIZED RESULT
-            Log::info('Face Verification Normalized Result', [
-                'face_id' => $faceId,
-                'normalized_result' => $normalizedResult,
-                'original_similarity' => $result['similarity'] ?? 'NOT_FOUND',
-                'final_similarity' => $similarity
-            ]);
-
-            return $normalizedResult;
-
         } catch (Exception $e) {
             Log::error('Face verification error: ' . $e->getMessage(), [
                 'face_id' => $faceId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
 
             return [

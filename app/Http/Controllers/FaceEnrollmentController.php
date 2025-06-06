@@ -166,7 +166,25 @@ class FaceEnrollmentController extends Controller
                 $base64Photo
             );
 
-            if ($result['status'] === 'success') {
+            // Check for success (handle both direct status and risetai wrapper)
+            $isSuccess = false;
+            $statusMessage = 'Enrollment gagal: Kesalahan tidak diketahui';
+
+            if (isset($result['status']) && $result['status'] === 'success') {
+                $isSuccess = true;
+                $statusMessage = $result['status_message'] ?? 'Enrollment berhasil';
+            } elseif (isset($result['risetai'])) {
+                // Handle risetai wrapper response
+                $risetaiData = $result['risetai'];
+                if (isset($risetaiData['status']) && ($risetaiData['status'] === '200' || $risetaiData['status'] === 'success')) {
+                    $isSuccess = true;
+                    $statusMessage = $risetaiData['status_message'] ?? 'Enrollment berhasil';
+                } else {
+                    $statusMessage = $risetaiData['status_message'] ?? 'Enrollment gagal';
+                }
+            }
+
+            if ($isSuccess) {
                 // Update user with face_id
                 $employee->user->update(['face_id' => $faceId]);
 
@@ -191,12 +209,13 @@ class FaceEnrollmentController extends Controller
             } else {
                 Log::warning('Face enrollment failed', [
                     'employee_id' => $employee->employee_id,
-                    'api_response' => $result
+                    'api_response' => $result,
+                    'status_message' => $statusMessage
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Enrollment gagal: ' . ($result['status_message'] ?? 'Kesalahan tidak diketahui')
+                    'message' => $statusMessage
                 ], 422);
             }
 
@@ -352,17 +371,19 @@ class FaceEnrollmentController extends Controller
             // Call verify API
             $result = $this->faceService->verifyFace($employee->user->face_id, $base64Photo);
 
+            // The service now handles risetai wrapper extraction, so we can use the result directly
             $similarity = ($result['similarity'] ?? 0) * 100;
             $threshold = config('services.biznet_face.similarity_threshold', 0.75) * 100;
+            $verified = $result['verified'] ?? false;
 
             return response()->json([
                 'success' => true,
                 'result' => $result,
-                'message' => $result['verified'] ?
+                'message' => $verified ?
                     "✓ Verifikasi berhasil! Similarity: {$similarity}% (threshold: {$threshold}%)" :
                     "✗ Verifikasi gagal. Similarity: {$similarity}% (threshold: {$threshold}%)",
                 'data' => [
-                    'verified' => $result['verified'] ?? false,
+                    'verified' => $verified,
                     'similarity' => $similarity,
                     'threshold' => $threshold,
                     'masker' => $result['masker'] ?? $result['mask'] ?? false,

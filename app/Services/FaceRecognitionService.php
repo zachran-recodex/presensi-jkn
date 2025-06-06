@@ -211,6 +211,16 @@ class FaceRecognitionService
             if ($response->successful()) {
                 $data = $response->json();
 
+                // Check for risetai wrapper
+                if (isset($data['risetai'])) {
+                    $risetaiData = $data['risetai'];
+                    return [
+                        'status' => 'success',
+                        'status_message' => $risetaiData['status_message'] ?? 'Face enrollment completed',
+                        'data' => $risetaiData
+                    ];
+                }
+
                 if (!isset($data['status'])) {
                     return [
                         'status' => 'success',
@@ -255,6 +265,16 @@ class FaceRecognitionService
             if ($response->successful()) {
                 $data = $response->json();
 
+                // Check for risetai wrapper
+                if (isset($data['risetai'])) {
+                    $risetaiData = $data['risetai'];
+                    return [
+                        'status' => 'success',
+                        'faces' => $risetaiData['faces'] ?? $risetaiData,
+                        'status_message' => 'Faces list retrieved'
+                    ];
+                }
+
                 if (!isset($data['status'])) {
                     return [
                         'status' => 'success',
@@ -276,7 +296,7 @@ class FaceRecognitionService
     }
 
     /**
-     * Verify face (1:1 authentication) - FIXED VERSION
+     * Verify face (1:1 authentication) - FINAL FIX untuk risetai wrapper
      */
     public function verifyFace(string $userId, string $base64Image, string $faceGalleryId = null): array
     {
@@ -296,57 +316,31 @@ class FaceRecognitionService
             Log::info('Face API - Verify Face Response', [
                 'user_id' => $userId,
                 'status_code' => $response->status(),
-                'response_body' => substr($response->body(), 0, 1000) // Increased limit for debugging
+                'response_body' => substr($response->body(), 0, 1000)
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
 
-                // Log the complete response structure for debugging
-                Log::info('Face API - Verify Face Data Analysis', [
+                Log::info('Face API - Verify Face Complete Response Analysis', [
                     'user_id' => $userId,
-                    'response_keys' => is_array($data) ? array_keys($data) : 'not_array',
-                    'has_status' => isset($data['status']),
-                    'complete_data' => $data
+                    'response_structure' => $data,
+                    'has_risetai' => isset($data['risetai']),
+                    'risetai_data' => $data['risetai'] ?? null
                 ]);
 
-                // Handle different response formats
-                if (isset($data['status']) && $data['status'] === 'success') {
-                    // API returned structured response with status
-                    return $data;
-                } else {
-                    // API returned direct data without status wrapper
-                    // This is the most likely scenario causing the issue
+                // FIXED: Handle risetai wrapper
+                if (isset($data['risetai'])) {
+                    $risetaiData = $data['risetai'];
                     
-                    // Extract similarity/confidence from various possible field names
-                    $similarity = 0;
-                    $verified = false;
+                    // Extract data from risetai wrapper
+                    $similarity = (float) ($risetaiData['similarity'] ?? 0);
+                    $verified = (bool) ($risetaiData['verified'] ?? false);
+                    $masker = (bool) ($risetaiData['masker'] ?? $risetaiData['mask'] ?? false);
+                    $userName = $risetaiData['user_name'] ?? '';
+                    $statusMessage = $risetaiData['status_message'] ?? 'Face verification completed';
                     
-                    // Try multiple field names that Biznet API might use
-                    if (isset($data['similarity'])) {
-                        $similarity = (float) $data['similarity'];
-                    } elseif (isset($data['confidence_level'])) {
-                        $similarity = (float) $data['confidence_level'];
-                    } elseif (isset($data['confidence'])) {
-                        $similarity = (float) $data['confidence'];
-                    } elseif (isset($data['score'])) {
-                        $similarity = (float) $data['score'];
-                    } elseif (isset($data['match_score'])) {
-                        $similarity = (float) $data['match_score'];
-                    }
-                    
-                    // Handle verified status
-                    if (isset($data['verified'])) {
-                        $verified = (bool) $data['verified'];
-                    } elseif (isset($data['match'])) {
-                        $verified = (bool) $data['match'];
-                    } elseif (isset($data['is_verified'])) {
-                        $verified = (bool) $data['is_verified'];
-                    } elseif (isset($data['success'])) {
-                        $verified = (bool) $data['success'];
-                    }
-                    
-                    // Convert percentage to decimal if needed (0-100 to 0-1)
+                    // Convert similarity to 0-1 range if it's in 0-100 range
                     if ($similarity > 1) {
                         $similarity = $similarity / 100;
                     }
@@ -355,26 +349,60 @@ class FaceRecognitionService
                         'status' => 'success',
                         'verified' => $verified,
                         'similarity' => $similarity,
-                        'masker' => $data['masker'] ?? $data['mask'] ?? $data['is_masked'] ?? false,
-                        'user_name' => $data['user_name'] ?? $data['name'] ?? '',
-                        'status_message' => 'Face verification completed',
-                        'original_response' => $data // Keep original for debugging
+                        'masker' => $masker,
+                        'user_name' => $userName,
+                        'status_message' => $statusMessage
                     ];
                     
-                    Log::info('Face API - Verify Face Normalized Result', [
+                    Log::info('Face API - Verify Face risetai Extraction', [
                         'user_id' => $userId,
-                        'original_similarity_fields' => [
-                            'similarity' => $data['similarity'] ?? 'not_found',
-                            'confidence_level' => $data['confidence_level'] ?? 'not_found',
-                            'confidence' => $data['confidence'] ?? 'not_found',
-                            'score' => $data['score'] ?? 'not_found'
-                        ],
+                        'risetai_similarity' => $risetaiData['similarity'] ?? 'not_found',
+                        'risetai_verified' => $risetaiData['verified'] ?? 'not_found',
                         'final_similarity' => $similarity,
                         'final_verified' => $verified,
-                        'normalized_result' => $result
+                        'final_result' => $result
                     ]);
                     
                     return $result;
+                }
+                
+                // Handle other response formats (backward compatibility)
+                if (isset($data['status']) && $data['status'] === 'success') {
+                    return $data;
+                } else {
+                    // Fallback for direct response without wrapper
+                    $similarity = 0;
+                    $verified = false;
+                    
+                    if (isset($data['similarity'])) {
+                        $similarity = (float) $data['similarity'];
+                    } elseif (isset($data['confidence_level'])) {
+                        $similarity = (float) $data['confidence_level'];
+                    } elseif (isset($data['confidence'])) {
+                        $similarity = (float) $data['confidence'];
+                    } elseif (isset($data['score'])) {
+                        $similarity = (float) $data['score'];
+                    }
+                    
+                    if (isset($data['verified'])) {
+                        $verified = (bool) $data['verified'];
+                    } elseif (isset($data['match'])) {
+                        $verified = (bool) $data['match'];
+                    }
+                    
+                    // Convert percentage to decimal if needed
+                    if ($similarity > 1) {
+                        $similarity = $similarity / 100;
+                    }
+                    
+                    return [
+                        'status' => 'success',
+                        'verified' => $verified,
+                        'similarity' => $similarity,
+                        'masker' => $data['masker'] ?? $data['mask'] ?? false,
+                        'user_name' => $data['user_name'] ?? '',
+                        'status_message' => 'Face verification completed'
+                    ];
                 }
             }
 
@@ -411,6 +439,19 @@ class FaceRecognitionService
 
             if ($response->successful()) {
                 $data = $response->json();
+
+                // Check for risetai wrapper
+                if (isset($data['risetai'])) {
+                    $risetaiData = $data['risetai'];
+                    return [
+                        'status' => 'success',
+                        'confidence_level' => $risetaiData['confidence_level'] ?? $risetaiData['similarity'] ?? 0,
+                        'mask' => $risetaiData['mask'] ?? $risetaiData['masker'] ?? false,
+                        'user_id' => $risetaiData['user_id'] ?? '',
+                        'user_name' => $risetaiData['user_name'] ?? '',
+                        'status_message' => 'Face identification completed'
+                    ];
+                }
 
                 if (!isset($data['status'])) {
                     return [
@@ -461,6 +502,14 @@ class FaceRecognitionService
             if ($response->successful()) {
                 $data = $response->json();
 
+                // Check for risetai wrapper
+                if (isset($data['risetai'])) {
+                    return [
+                        'status' => 'success',
+                        'status_message' => 'Face deleted successfully'
+                    ];
+                }
+
                 if (!isset($data['status'])) {
                     return [
                         'status' => 'success',
@@ -502,6 +551,18 @@ class FaceRecognitionService
 
             if ($response->successful()) {
                 $data = $response->json();
+
+                // Check for risetai wrapper
+                if (isset($data['risetai'])) {
+                    $risetaiData = $data['risetai'];
+                    return [
+                        'status' => 'success',
+                        'similarity' => $risetaiData['similarity'] ?? 0,
+                        'verified' => $risetaiData['verified'] ?? false,
+                        'masker' => $risetaiData['masker'] ?? $risetaiData['mask'] ?? false,
+                        'status_message' => 'Image comparison completed'
+                    ];
+                }
 
                 if (!isset($data['status'])) {
                     return [
