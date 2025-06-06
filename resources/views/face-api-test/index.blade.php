@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div x-data="faceApiTester()" class="container mx-auto px-4 py-8">
+    <div x-data="faceApiTester()" class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <div class="flex justify-between items-center">
