@@ -7,139 +7,220 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\FaceEnrollmentController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\FaceApiTestController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
+| 
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group.
+|
 */
 
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
+
+// Root redirect to login
 Route::get('/', function () {
     return redirect('/login');
 });
 
-// Dashboard routes
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
-});
+/*
+|--------------------------------------------------------------------------
+| Authenticated User Routes
+|--------------------------------------------------------------------------
+*/
 
-// Profile routes
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-// Attendance routes - Updated with flexible access
 Route::middleware(['auth'])->group(function () {
-    // Attendance form and history (accessible by both admin and employees)
-    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-    Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
-
-    // Photo routes (with authorization check inside controller)
-    Route::get('/attendance/{attendance}/photo', [AttendanceController::class, 'getPhoto'])->name('attendance.photo');
-    Route::get('/attendance/{attendance}/thumbnail', [AttendanceController::class, 'getThumbnail'])->name('attendance.thumbnail');
-
-    // Clock in/out only for employees with proper checks
-    Route::middleware(['employee'])->group(function () {
-        Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock-in');
-        Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clock-out');
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('index');
+        Route::get('/stats', [DashboardController::class, 'getStats'])->name('stats');
     });
-
-    // Real-time attendance stats (admin only)
-    Route::get('/attendance/realtime-stats', [AttendanceController::class, 'getRealtimeStats'])->name('attendance.realtime-stats');
-});
-
-// Admin routes
-Route::middleware(['auth', 'admin'])->group(function () {
-    // Employee management
-    Route::resource('employees', EmployeeController::class);
-    Route::post('/employees/{employee}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('employees.toggle-status');
-    Route::get('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
-
-    // Location management
-    Route::resource('locations', LocationController::class);
-    Route::post('/locations/{location}/toggle-status', [LocationController::class, 'toggleStatus'])->name('locations.toggle-status');
-    Route::post('/locations/validate-coordinates', [LocationController::class, 'validateCoordinates'])->name('locations.validate-coordinates');
-    Route::post('/locations/calculate-distance', [LocationController::class, 'calculateDistance'])->name('locations.calculate-distance');
-
-    // Face enrollment management
-    Route::get('/face-enrollment', [FaceEnrollmentController::class, 'index'])->name('face-enrollment.index');
-    Route::get('/face-enrollment/{employee}', [FaceEnrollmentController::class, 'show'])->name('face-enrollment.show');
-    Route::post('/face-enrollment/{employee}/enroll', [FaceEnrollmentController::class, 'enroll'])->name('face-enrollment.enroll');
-    Route::post('/face-enrollment/{employee}/reenroll', [FaceEnrollmentController::class, 'reenroll'])->name('face-enrollment.reenroll');
-    Route::delete('/face-enrollment/{employee}/delete', [FaceEnrollmentController::class, 'delete'])->name('face-enrollment.delete');
-    Route::post('/face-enrollment/{employee}/test', [FaceEnrollmentController::class, 'testVerification'])->name('face-enrollment.test');
-    Route::get('/face-enrollment/stats', [FaceEnrollmentController::class, 'stats'])->name('face-enrollment.stats');
-    Route::get('/face-enrollment/list-faces', [FaceEnrollmentController::class, 'listEnrolledFaces'])->name('face-enrollment.list-faces');
-
-    // Reports
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/monthly', [ReportController::class, 'monthly'])->name('reports.monthly');
-    Route::get('/reports/export/monthly', [ReportController::class, 'exportMonthly'])->name('reports.export.monthly');
-
-    // Admin attendance history
-    Route::get('/admin/attendance-history', [AttendanceController::class, 'history'])->name('admin.attendance.history');
-    Route::get('/admin/attendance-stats', [AttendanceController::class, 'getRealtimeStats'])->name('admin.attendance.stats');
-
-    // Face API Testing routes
-    Route::prefix('face-api-test')->name('face-api-test.')->group(function () {
-        Route::get('/', [App\Http\Controllers\FaceApiTestController::class, 'index'])->name('index');
-        Route::post('/connection', [App\Http\Controllers\FaceApiTestController::class, 'testConnection'])->name('connection');
-        Route::post('/counters', [App\Http\Controllers\FaceApiTestController::class, 'getCounters'])->name('counters');
-        Route::post('/galleries', [App\Http\Controllers\FaceApiTestController::class, 'getMyFaceGalleries'])->name('galleries');
-        Route::post('/gallery/create', [App\Http\Controllers\FaceApiTestController::class, 'createFaceGallery'])->name('gallery.create');
-        Route::post('/gallery/delete', [App\Http\Controllers\FaceApiTestController::class, 'deleteFaceGallery'])->name('gallery.delete');
-        Route::post('/enroll', [App\Http\Controllers\FaceApiTestController::class, 'testEnrollFace'])->name('enroll');
-        Route::post('/verify', [App\Http\Controllers\FaceApiTestController::class, 'testVerifyFace'])->name('verify');
-        Route::post('/identify', [App\Http\Controllers\FaceApiTestController::class, 'testIdentifyFace'])->name('identify');
-        Route::post('/compare', [App\Http\Controllers\FaceApiTestController::class, 'testCompareImages'])->name('compare');
-        Route::post('/faces/list', [App\Http\Controllers\FaceApiTestController::class, 'listFaces'])->name('faces.list');
-        Route::post('/faces/delete', [App\Http\Controllers\FaceApiTestController::class, 'deleteFace'])->name('faces.delete');
-        Route::get('/error-message', [App\Http\Controllers\FaceApiTestController::class, 'getErrorMessage'])->name('error.message');
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Profile Management Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
-});
-
-// Employee individual report (accessible by employee and admin)
-Route::middleware('auth')->group(function () {
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Attendance Management Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('attendance')->name('attendance.')->group(function () {
+        // General attendance routes (accessible by both admin and employees)
+        Route::get('/', [AttendanceController::class, 'index'])->name('index');
+        Route::get('/history', [AttendanceController::class, 'history'])->name('history');
+        
+        // Photo routes (with authorization check inside controller)
+        Route::get('/{attendance}/photo', [AttendanceController::class, 'getPhoto'])->name('photo');
+        Route::get('/{attendance}/thumbnail', [AttendanceController::class, 'getThumbnail'])->name('thumbnail');
+        
+        // Real-time attendance stats
+        Route::get('/realtime-stats', [AttendanceController::class, 'getRealtimeStats'])->name('realtime-stats');
+        
+        // Employee-only attendance actions
+        Route::middleware(['employee'])->group(function () {
+            Route::post('/clock-in', [AttendanceController::class, 'clockIn'])->name('clock-in');
+            Route::post('/clock-out', [AttendanceController::class, 'clockOut'])->name('clock-out');
+        });
+    });
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Individual Employee Reports
+    |--------------------------------------------------------------------------
+    */
     Route::get('/reports/employee/{employee}', [ReportController::class, 'employee'])
         ->name('reports.employee')
         ->middleware('can:view,employee');
 });
 
-// Debug route (REMOVE AFTER DEBUGGING)
-Route::middleware(['auth'])->get('/debug-attendance', function () {
-    $user = auth()->user();
+/*
+|--------------------------------------------------------------------------
+| Admin Only Routes
+|--------------------------------------------------------------------------
+*/
 
-    $debug = [
-        'user_id' => $user->id,
-        'user_name' => $user->name,
-        'user_role' => $user->role,
-        'user_is_active' => $user->is_active,
-        'has_employee' => $user->employee ? 'YES' : 'NO',
-    ];
+Route::middleware(['auth', 'admin'])->group(function () {
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Employee Management
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('employees')->name('employees.')->group(function () {
+        Route::get('/', [EmployeeController::class, 'index'])->name('index');
+        Route::get('/create', [EmployeeController::class, 'create'])->name('create');
+        Route::post('/', [EmployeeController::class, 'store'])->name('store');
+        Route::get('/{employee}', [EmployeeController::class, 'show'])->name('show');
+        Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->name('edit');
+        Route::put('/{employee}', [EmployeeController::class, 'update'])->name('update');
+        Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('destroy');
+        
+        // Additional employee actions
+        Route::post('/{employee}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/export', [EmployeeController::class, 'export'])->name('export');
+    });
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Location Management
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('locations')->name('locations.')->group(function () {
+        Route::get('/', [LocationController::class, 'index'])->name('index');
+        Route::get('/create', [LocationController::class, 'create'])->name('create');
+        Route::post('/', [LocationController::class, 'store'])->name('store');
+        Route::get('/{location}', [LocationController::class, 'show'])->name('show');
+        Route::get('/{location}/edit', [LocationController::class, 'edit'])->name('edit');
+        Route::put('/{location}', [LocationController::class, 'update'])->name('update');
+        Route::delete('/{location}', [LocationController::class, 'destroy'])->name('destroy');
+        
+        // Additional location actions
+        Route::post('/{location}/toggle-status', [LocationController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/validate-coordinates', [LocationController::class, 'validateCoordinates'])->name('validate-coordinates');
+        Route::post('/calculate-distance', [LocationController::class, 'calculateDistance'])->name('calculate-distance');
+    });
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Face Enrollment Management
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('face-enrollment')->name('face-enrollment.')->group(function () {
+        Route::get('/', [FaceEnrollmentController::class, 'index'])->name('index');
+        Route::get('/stats', [FaceEnrollmentController::class, 'stats'])->name('stats');
+        Route::get('/list-faces', [FaceEnrollmentController::class, 'listEnrolledFaces'])->name('list-faces');
+        
+        // Employee-specific face enrollment routes
+        Route::prefix('{employee}')->group(function () {
+            Route::get('/', [FaceEnrollmentController::class, 'show'])->name('show');
+            Route::post('/enroll', [FaceEnrollmentController::class, 'enroll'])->name('enroll');
+            Route::post('/reenroll', [FaceEnrollmentController::class, 'reenroll'])->name('reenroll');
+            Route::delete('/delete', [FaceEnrollmentController::class, 'delete'])->name('delete');
+            Route::post('/test', [FaceEnrollmentController::class, 'testVerification'])->name('test');
+        });
+    });
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Reports Management
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
+        Route::get('/export/monthly', [ReportController::class, 'exportMonthly'])->name('export.monthly');
+    });
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Attendance Management
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/attendance-history', [AttendanceController::class, 'history'])->name('attendance.history');
+        Route::get('/attendance-stats', [AttendanceController::class, 'getRealtimeStats'])->name('attendance.stats');
+    });
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Face API Testing Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('face-api-test')->name('face-api-test.')->group(function () {
+        Route::get('/', [FaceApiTestController::class, 'index'])->name('index');
+        
+        // API Connection & Info
+        Route::post('/connection', [FaceApiTestController::class, 'testConnection'])->name('connection');
+        Route::post('/counters', [FaceApiTestController::class, 'getCounters'])->name('counters');
+        Route::get('/error-message', [FaceApiTestController::class, 'getErrorMessage'])->name('error.message');
+        
+        // Gallery Management
+        Route::prefix('gallery')->name('gallery.')->group(function () {
+            Route::post('/create', [FaceApiTestController::class, 'createFaceGallery'])->name('create');
+            Route::post('/delete', [FaceApiTestController::class, 'deleteFaceGallery'])->name('delete');
+        });
+        
+        // Face Operations
+        Route::post('/galleries', [FaceApiTestController::class, 'getMyFaceGalleries'])->name('galleries');
+        Route::post('/enroll', [FaceApiTestController::class, 'testEnrollFace'])->name('enroll');
+        Route::post('/verify', [FaceApiTestController::class, 'testVerifyFace'])->name('verify');
+        Route::post('/identify', [FaceApiTestController::class, 'testIdentifyFace'])->name('identify');
+        Route::post('/compare', [FaceApiTestController::class, 'testCompareImages'])->name('compare');
+        
+        // Face Management
+        Route::prefix('faces')->name('faces.')->group(function () {
+            Route::post('/list', [FaceApiTestController::class, 'listFaces'])->name('list');
+            Route::post('/delete', [FaceApiTestController::class, 'deleteFace'])->name('delete');
+        });
+    });
+});
 
-    if ($user->employee) {
-        $debug['employee_id'] = $user->employee->employee_id;
-        $debug['employee_status'] = $user->employee->status;
-        $debug['employee_location'] = $user->employee->location->name ?? 'No Location';
-        $debug['face_enrolled'] = $user->hasFaceEnrolled() ? 'YES' : 'NO';
-        $debug['face_id'] = $user->face_id ?? 'NULL';
-    }
-
-    $debug['middleware_checks'] = [
-        'is_authenticated' => auth()->check(),
-        'has_employee_profile' => $user->employee ? true : false,
-        'employee_is_active' => $user->employee ? ($user->employee->status === 'active') : false,
-        'user_is_active' => $user->is_active,
-        'can_access_attendance' => $user->employee &&
-                                  $user->employee->status === 'active' &&
-                                  $user->is_active
-    ];
-
-    return response()->json($debug, 200, [], JSON_PRETTY_PRINT);
-})->name('debug.attendance');
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
 
 require __DIR__.'/auth.php';
