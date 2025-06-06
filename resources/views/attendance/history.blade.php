@@ -16,9 +16,7 @@
                         <div class="bg-blue-50 rounded-lg p-4">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
-                                    <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <i class="fas fa-check-circle text-blue-600 text-2xl"></i>
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm font-medium text-blue-600">Total Hadir</p>
@@ -30,9 +28,7 @@
                         <div class="bg-red-50 rounded-lg p-4">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
-                                    <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <i class="fas fa-clock text-red-600 text-2xl"></i>
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm font-medium text-red-600">Terlambat</p>
@@ -44,9 +40,7 @@
                         <div class="bg-green-50 rounded-lg p-4">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
-                                    <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                    </svg>
+                                    <i class="fas fa-chart-line text-green-600 text-2xl"></i>
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm font-medium text-green-600">Tingkat Kedisiplinan</p>
@@ -112,11 +106,11 @@
                         <div class="flex space-x-2">
                             <button type="submit"
                                     class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Filter
+                                <i class="fas fa-filter mr-1"></i> Filter
                             </button>
                             <a href="{{ route('attendance.history') }}"
                                class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                                Reset
+                                <i class="fas fa-sync-alt mr-1"></i> Reset
                             </a>
                         </div>
                     </form>
@@ -129,7 +123,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Daftar Presensi</h3>
                         <div class="text-sm text-gray-600">
-                            Total: {{ $attendances->total() }} record
+                            <i class="fas fa-list-ol mr-1"></i> Total: {{ $attendances->total() }} record
                         </div>
                     </div>
 
@@ -139,25 +133,25 @@
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tanggal
+                                            <i class="fas fa-calendar-alt mr-1"></i> Tanggal
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Jenis
+                                            <i class="fas fa-tag mr-1"></i> Jenis
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Waktu
+                                            <i class="fas fa-clock mr-1"></i> Waktu
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
+                                            <i class="fas fa-info-circle mr-1"></i> Status
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Lokasi
+                                            <i class="fas fa-map-marker-alt mr-1"></i> Lokasi
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Foto
+                                            <i class="fas fa-camera mr-1"></i> Foto
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Catatan
+                                            <i class="fas fa-sticky-note mr-1"></i> Catatan
                                         </th>
                                     </tr>
                                 </thead>
@@ -169,35 +163,39 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $attendance->type === 'clock_in' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
-                                                    {{ $attendance->type === 'clock_in' ? 'Masuk' : 'Pulang' }}
+                                                    @if($attendance->type === 'clock_in')
+                                                        <i class="fas fa-sign-in-alt mr-1"></i> Masuk
+                                                    @else
+                                                        <i class="fas fa-sign-out-alt mr-1"></i> Pulang
+                                                    @endif
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $attendance->attendance_time->format('H:i:s') }}
                                                 @if($attendance->is_late && $attendance->type === 'clock_in')
                                                     <div class="text-xs text-red-600">
-                                                        Terlambat {{ $attendance->late_minutes }} menit
+                                                        <i class="fas fa-exclamation-circle mr-1"></i> Terlambat {{ $attendance->late_minutes }} menit
                                                     </div>
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                 @if($attendance->status === 'success')
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Berhasil
+                                                        <i class="fas fa-check-circle mr-1"></i> Berhasil
                                                     </span>
                                                 @elseif($attendance->status === 'failed')
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                        Gagal
+                                                        <i class="fas fa-times-circle mr-1"></i> Gagal
                                                     </span>
                                                 @else
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                        Pending
+                                                        <i class="fas fa-clock mr-1"></i> Pending
                                                     </span>
                                                 @endif
 
                                                 @if($attendance->status === 'failed' && $attendance->failure_reason)
                                                     <div class="text-xs text-red-600 mt-1">
-                                                        {{ $attendance->failure_reason }}
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i> {{ $attendance->failure_reason }}
                                                     </div>
                                                 @endif
                                             </td>
@@ -205,11 +203,11 @@
                                                 @if($attendance->location)
                                                     <div>{{ $attendance->location->name }}</div>
                                                     <div class="text-xs text-gray-500">
-                                                        {{ number_format($attendance->distance_from_office, 0) }}m
+                                                        <i class="fas fa-ruler mr-1"></i> {{ number_format($attendance->distance_from_office, 0) }}m
                                                         @if($attendance->is_valid_location)
-                                                            <span class="text-green-600">✓</span>
+                                                            <i class="fas fa-check text-green-600 ml-1"></i>
                                                         @else
-                                                            <span class="text-red-600">✗</span>
+                                                            <i class="fas fa-times text-red-600 ml-1"></i>
                                                         @endif
                                                     </div>
                                                 @else
@@ -220,9 +218,7 @@
                                                 @if($attendance->photo_path)
                                                     <button @click="showPhoto('{{ route('attendance.photo', $attendance) }}')"
                                                             class="text-blue-600 hover:text-blue-900">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                        </svg>
+                                                        <i class="fas fa-image text-xl"></i>
                                                     </button>
                                                 @else
                                                     <span class="text-gray-400">-</span>
@@ -231,7 +227,7 @@
                                             <td class="px-6 py-4 text-sm text-gray-900">
                                                 @if($attendance->notes)
                                                     <div class="max-w-xs truncate" title="{{ $attendance->notes }}">
-                                                        {{ $attendance->notes }}
+                                                        <i class="fas fa-comment-alt mr-1"></i> {{ $attendance->notes }}
                                                     </div>
                                                 @else
                                                     <span class="text-gray-400">-</span>
@@ -249,9 +245,7 @@
                         </div>
                     @else
                         <div class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
+                            <i class="fas fa-clipboard-list text-gray-400 text-5xl mb-4"></i>
                             <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data presensi</h3>
                             <p class="mt-1 text-sm text-gray-500">
                                 @if(request()->hasAny(['date_from', 'date_to', 'type', 'status']))
@@ -263,10 +257,7 @@
                             <div class="mt-6">
                                 <a href="{{ route('attendance.index') }}"
                                    class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Lakukan Presensi
+                                    <i class="fas fa-plus-circle mr-2"></i> Lakukan Presensi
                                 </a>
                             </div>
                         </div>
@@ -297,9 +288,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg leading-6 font-medium text-gray-900">Foto Presensi</h3>
                         <button @click="show = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
+                            <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>
                     <div class="text-center">

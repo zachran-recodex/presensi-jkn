@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Lokasi Kantor') }}
+            <i class="fas fa-map-marker-alt mr-2"></i>{{ __('Lokasi Kantor') }}
         </h2>
     </x-slot>
 
@@ -15,13 +15,13 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     @if(session('success'))
                         <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded">
-                            <p>{{ session('success') }}</p>
+                            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
                         </div>
                     @endif
 
                     @if(session('error'))
                         <div class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-                            <p>{{ session('error') }}</p>
+                            <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
                         </div>
                     @endif
 
@@ -41,13 +41,13 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Radius
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Karyawan
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Aksi
                                     </th>
                                 </tr>
@@ -60,7 +60,7 @@
                                                 {{ $location->name }}
                                             </div>
                                             <div class="text-sm text-gray-500">
-                                                {{ $location->timezone }}
+                                                <i class="fas fa-clock mr-1"></i>{{ $location->timezone }}
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
@@ -79,15 +79,13 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
+                                            <div class="text-sm text-center text-gray-900">
                                                 {{ $location->employees_count }}
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span data-location-id="{{ $location->id }}" class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $location->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                <svg class="-ml-0.5 mr-1.5 h-2 w-2 {{ $location->is_active ? 'text-green-400' : 'text-red-400' }}" fill="currentColor" viewBox="0 0 8 8">
-                                                    <circle cx="4" cy="4" r="3" />
-                                                </svg>
+                                                <i class="fas fa-circle mr-1 text-xs {{ $location->is_active ? 'text-green-400' : 'text-red-400' }}"></i>
                                                 {{ $location->is_active ? 'Aktif' : 'Tidak Aktif' }}
                                             </span>
                                         </td>
@@ -99,7 +97,7 @@
                                                 <a href="{{ route('locations.edit', $location) }}" class="text-blue-600 hover:text-blue-900" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" class="toggle-status text-yellow-600 hover:text-yellow-900"
+                                                <button type="button" class="toggle-status text-green-600 hover:text-green-900"
                                                     data-location-id="{{ $location->id }}"
                                                     data-location-name="{{ $location->name }}"
                                                     data-is-active="{{ $location->is_active ? 1 : 0 }}"
@@ -124,7 +122,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="7" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                            Tidak ada data lokasi. <a href="{{ route('locations.create') }}" class="text-indigo-600 hover:text-indigo-900">Tambah lokasi baru</a>.
+                                            <i class="fas fa-map-marked mr-2"></i>Tidak ada data lokasi. <a href="{{ route('locations.create') }}" class="text-indigo-600 hover:text-indigo-900">Tambah lokasi baru</a>.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -149,7 +147,7 @@
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <i class="fas fa-exclamation-triangle text-red-600"></i>
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
@@ -168,11 +166,11 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Hapus
+                            <i class="fas fa-trash mr-2"></i>Hapus
                         </button>
                     </form>
                     <button type="button" id="cancelDelete" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Batal
+                        <i class="fas fa-times mr-2"></i>Batal
                     </button>
                 </div>
             </div>
@@ -188,7 +186,7 @@
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                            <i class="fas fa-exclamation-circle text-yellow-600 text-xl"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
@@ -204,10 +202,10 @@
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <button type="button" id="confirmToggleStatus" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-600 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Ubah Status
+                        <i class="fas fa-exchange-alt mr-2"></i>Ubah Status
                     </button>
                     <button type="button" id="cancelToggleStatus" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Batal
+                        <i class="fas fa-times mr-2"></i>Batal
                     </button>
                 </div>
             </div>
@@ -291,9 +289,7 @@
                             statusBadge.classList.remove('bg-red-100', 'text-red-800');
                             statusBadge.classList.add('bg-green-100', 'text-green-800');
                             statusBadge.innerHTML = `
-                                <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
-                                    <circle cx="4" cy="4" r="3" />
-                                </svg>
+                                <i class="fas fa-circle mr-1 text-xs text-green-400"></i>
                                 Aktif
                             `;
                             toggleButton.title = 'Nonaktifkan';
@@ -304,9 +300,7 @@
                             statusBadge.classList.remove('bg-green-100', 'text-green-800');
                             statusBadge.classList.add('bg-red-100', 'text-red-800');
                             statusBadge.innerHTML = `
-                                <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-red-400" fill="currentColor" viewBox="0 0 8 8">
-                                    <circle cx="4" cy="4" r="3" />
-                                </svg>
+                                <i class="fas fa-circle mr-1 text-xs text-red-400"></i>
                                 Tidak Aktif
                             `;
                             toggleButton.title = 'Aktifkan';

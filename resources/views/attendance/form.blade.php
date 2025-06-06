@@ -108,7 +108,7 @@
                                 <!-- Camera Loading -->
                                 <div x-show="!cameraReady && !cameraError" class="w-full max-w-md mx-auto h-64 bg-gray-100 rounded-lg flex items-center justify-center">
                                     <div class="text-center">
-                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                                        <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mb-2"></i>
                                         <p class="text-gray-600">Mengaktifkan kamera...</p>
                                     </div>
                                 </div>
@@ -116,9 +116,7 @@
                                 <!-- Camera Error -->
                                 <div x-show="cameraError" class="w-full max-w-md mx-auto h-64 bg-red-50 rounded-lg flex items-center justify-center">
                                     <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-red-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                        </svg>
+                                        <i class="fas fa-exclamation-triangle text-red-400 text-3xl mb-2"></i>
                                         <p class="text-red-600 font-medium">Gagal mengakses kamera</p>
                                         <p class="text-sm text-red-500 mt-1" x-text="cameraErrorMessage"></p>
                                         <button
@@ -141,10 +139,7 @@
                                     x-show="cameraReady && !photoTaken"
                                     class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
                                 >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
+                                    <i class="fas fa-camera"></i>
                                     <span>Ambil Foto</span>
                                 </button>
 
@@ -153,9 +148,7 @@
                                     x-show="photoTaken"
                                     class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2"
                                 >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                    </svg>
+                                    <i class="fas fa-redo"></i>
                                     <span>Ambil Ulang</span>
                                 </button>
                             </div>
@@ -166,15 +159,13 @@
                             <h3 class="font-semibold text-lg mb-4">Lokasi GPS</h3>
 
                             <div x-show="!locationReady && !locationError" class="text-center py-4">
-                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                                <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mb-2"></i>
                                 <p class="text-gray-600">Mendapatkan lokasi GPS...</p>
                             </div>
 
                             <div x-show="locationError" class="bg-red-50 border border-red-200 rounded-lg p-4">
                                 <div class="flex">
-                                    <svg class="h-5 w-5 text-red-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                    </svg>
+                                    <i class="fas fa-exclamation-triangle text-red-400 mr-2 mt-0.5"></i>
                                     <div>
                                         <p class="text-red-800 font-medium">Gagal mendapatkan lokasi GPS</p>
                                         <p class="text-red-600 text-sm mt-1" x-text="locationErrorMessage"></p>
@@ -190,10 +181,7 @@
 
                             <div x-show="locationReady" class="bg-green-50 border border-green-200 rounded-lg p-4">
                                 <div class="flex items-start">
-                                    <svg class="h-5 w-5 text-green-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
+                                    <i class="fas fa-map-marker-alt text-green-400 mr-2 mt-0.5"></i>
                                     <div class="flex-1">
                                         <p class="text-green-800 font-medium">Lokasi GPS berhasil didapatkan</p>
                                         <div class="text-green-700 text-sm mt-1">
@@ -232,10 +220,8 @@
                                     :disabled="!canSubmit || processing"
                                     class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                 >
-                                    <svg x-show="!processing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    <div x-show="processing" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    <i x-show="!processing" class="fas fa-sign-in-alt"></i>
+                                    <i x-show="processing" class="fas fa-spinner fa-spin"></i>
                                     <span x-text="processing ? 'Memproses...' : 'Clock In'"></span>
                                 </button>
                             @endif
@@ -246,10 +232,8 @@
                                     :disabled="!canSubmit || processing"
                                     class="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                 >
-                                    <svg x-show="!processing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m10 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    <div x-show="processing" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    <i x-show="!processing" class="fas fa-sign-out-alt"></i>
+                                    <i x-show="processing" class="fas fa-spinner fa-spin"></i>
                                     <span x-text="processing ? 'Memproses...' : 'Clock Out'"></span>
                                 </button>
                             @endif
@@ -308,12 +292,8 @@
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div :class="type === 'success' ? 'bg-green-100' : 'bg-red-100'" class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                            <svg x-show="type === 'success'" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <svg x-show="type === 'error'" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <i x-show="type === 'success'" class="fas fa-check text-green-600"></i>
+                            <i x-show="type === 'error'" class="fas fa-times text-red-600"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" x-text="title"></h3>

@@ -37,9 +37,7 @@
                             @if(!$employee->user->hasFaceEnrolled())
                                 <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
                                     <div class="flex">
-                                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                        </svg>
+                                        <i class="fas fa-exclamation-triangle text-yellow-400 mr-2 mt-0.5"></i>
                                         <div>
                                             <p class="text-yellow-800 font-medium">Wajah Belum Terdaftar</p>
                                             <p class="text-yellow-700 text-sm mt-1">Silakan hubungi admin untuk melakukan enrollment wajah sebelum dapat melakukan presensi.</p>
@@ -53,13 +51,9 @@
                                 <div class="text-center p-3 {{ $todayClockIn ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
                                     <div class="flex items-center justify-center mb-2">
                                         @if($todayClockIn)
-                                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
+                                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
                                         @else
-                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
+                                            <i class="fas fa-clock text-gray-400 text-xl"></i>
                                         @endif
                                     </div>
                                     <p class="text-sm font-medium {{ $todayClockIn ? 'text-green-900' : 'text-gray-700' }}">Clock In</p>
@@ -78,13 +72,9 @@
                                 <div class="text-center p-3 {{ $todayClockOut ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 border border-gray-200' }} rounded-lg">
                                     <div class="flex items-center justify-center mb-2">
                                         @if($todayClockOut)
-                                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
+                                            <i class="fas fa-check-circle text-blue-600 text-xl"></i>
                                         @else
-                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m10 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                            </svg>
+                                            <i class="fas fa-sign-out-alt text-gray-400 text-xl"></i>
                                         @endif
                                     </div>
                                     <p class="text-sm font-medium {{ $todayClockOut ? 'text-blue-900' : 'text-gray-700' }}">Clock Out</p>
@@ -104,22 +94,16 @@
                                     <a href="{{ route('attendance.index') }}"
                                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white {{ $canClockIn ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' }} focus:outline-none focus:ring-2 focus:ring-offset-2 {{ $canClockIn ? 'focus:ring-green-500' : 'focus:ring-red-500' }}">
                                         @if($canClockIn)
-                                            <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                            </svg>
+                                            <i class="fas fa-sign-in-alt mr-2"></i>
                                             Clock In Sekarang
                                         @else
-                                            <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m10 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                            </svg>
+                                            <i class="fas fa-sign-out-alt mr-2"></i>
                                             Clock Out Sekarang
                                         @endif
                                     </a>
                                 @else
                                     <div class="text-gray-500">
-                                        <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
+                                        <i class="fas fa-check-circle text-gray-400 text-2xl mb-2"></i>
                                         <p class="text-sm">Presensi hari ini sudah selesai</p>
                                     </div>
                                 @endif
@@ -127,9 +111,7 @@
                         @else
                             <div class="bg-red-50 border border-red-200 rounded-md p-4">
                                 <div class="flex">
-                                    <svg class="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                    </svg>
+                                    <i class="fas fa-exclamation-triangle text-red-400 mr-2 mt-0.5"></i>
                                     <div>
                                         <p class="text-red-800 font-medium">Tidak Dapat Mengakses Presensi</p>
                                         <p class="text-red-700 text-sm mt-1">
@@ -260,9 +242,7 @@
         <div x-data="{ show: true }" x-show="show" class="fixed bottom-4 right-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg max-w-sm">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
+                    <i class="fas fa-exclamation-triangle text-red-400"></i>
                 </div>
                 <div class="ml-3">
                     <p class="text-sm font-medium text-red-800">Profil Karyawan Tidak Ditemukan</p>

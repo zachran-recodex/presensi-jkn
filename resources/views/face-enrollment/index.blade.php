@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Face Enrollment Management') }}
+            <i class="fas fa-id-card mr-2"></i>{{ __('Face Enrollment Management') }}
         </h2>
     </x-slot>
 
@@ -14,9 +14,7 @@
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
+                                <i class="fas fa-users text-gray-400 text-xl"></i>
                             </div>
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
@@ -32,9 +30,7 @@
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle text-green-400 text-xl"></i>
                             </div>
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
@@ -50,9 +46,7 @@
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-clock text-yellow-400 text-xl"></i>
                             </div>
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
@@ -68,9 +62,7 @@
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                </svg>
+                                <i class="fas fa-chart-line text-purple-400 text-xl"></i>
                             </div>
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
@@ -86,20 +78,20 @@
             <!-- API Status -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Status API Biznet Face Recognition</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-plug mr-2"></i>Status API Biznet Face Recognition
+                    </h3>
 
                     @if(isset($apiCounters['status']) && $apiCounters['status'] === 'error')
                         <div class="bg-red-50 border border-red-200 rounded-md p-4">
                             <div class="flex">
-                                <svg class="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                </svg>
+                                <i class="fas fa-exclamation-triangle text-red-400 mr-2 text-xl"></i>
                                 <div>
                                     <p class="text-red-800 font-medium">API Tidak Tersedia</p>
                                     <p class="text-red-700 text-sm mt-1">{{ $apiCounters['message'] ?? 'Koneksi ke API gagal' }}</p>
                                     <button onclick="testApiConnection()"
                                             class="mt-2 bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700">
-                                        Test Koneksi
+                                        <i class="fas fa-sync-alt mr-1"></i>Test Koneksi
                                     </button>
                                 </div>
                             </div>
@@ -107,9 +99,7 @@
                     @else
                         <div class="bg-green-50 border border-green-200 rounded-md p-4">
                             <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle text-green-400 mr-2 text-xl"></i>
                                 <div class="flex-1">
                                     <p class="text-green-800 font-medium">API Connected</p>
                                     @if(isset($apiCounters['remaining_limit']))
@@ -126,11 +116,11 @@
                                 <div class="flex space-x-2">
                                     <a href="{{ route('face-api-test.index') }}"
                                        class="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">
-                                        Test API
+                                        <i class="fas fa-vial mr-1"></i>Test API
                                     </a>
                                     <button onclick="refreshApiStatus()"
                                             class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">
-                                        Refresh
+                                        <i class="fas fa-sync-alt mr-1"></i>Refresh
                                     </button>
                                 </div>
                             </div>
@@ -143,7 +133,9 @@
             @if(isset($stats['departments']) && count($stats['departments']) > 0)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6 bg-white border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Enrollment by Department</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-building mr-2"></i>Enrollment by Department
+                        </h3>
                         <div class="space-y-3">
                             @foreach($stats['departments'] as $dept)
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -168,17 +160,24 @@
             <!-- Filters -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filter & Pencarian</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-filter mr-2"></i>Filter & Pencarian
+                    </h3>
                     <form method="GET" action="{{ route('face-enrollment.index') }}" class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
                                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Karyawan</label>
-                                <input type="text"
-                                       id="search"
-                                       name="search"
-                                       value="{{ request('search') }}"
-                                       placeholder="Nama, email, atau ID karyawan..."
-                                       class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-search text-gray-400"></i>
+                                    </div>
+                                    <input type="text"
+                                           id="search"
+                                           name="search"
+                                           value="{{ request('search') }}"
+                                           placeholder="Nama, email, atau ID karyawan..."
+                                           class="pl-10 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                </div>
                             </div>
 
                             <div>
@@ -209,11 +208,11 @@
                             <div class="flex items-end space-x-2">
                                 <button type="submit"
                                         class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                    Filter
+                                    <i class="fas fa-filter mr-1"></i>Filter
                                 </button>
                                 <a href="{{ route('face-enrollment.index') }}"
                                    class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                                    Reset
+                                    <i class="fas fa-sync-alt mr-1"></i>Reset
                                 </a>
                             </div>
                         </div>
@@ -225,19 +224,21 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Daftar Karyawan</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            <i class="fas fa-list mr-2"></i>Daftar Karyawan
+                        </h3>
                         <div class="flex items-center space-x-4">
                             <div class="text-sm text-gray-600">
-                                Total: {{ $employees->total() }} karyawan
+                                <i class="fas fa-users mr-1"></i>Total: {{ $employees->total() }} karyawan
                             </div>
                             <div class="flex space-x-2">
                                 <button onclick="exportData()"
                                         class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm">
-                                    Export CSV
+                                    <i class="fas fa-file-export mr-1"></i>Export CSV
                                 </button>
                                 <button onclick="refreshStats()"
                                         class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
-                                    Refresh
+                                    <i class="fas fa-sync-alt mr-1"></i>Refresh
                                 </button>
                             </div>
                         </div>
@@ -249,22 +250,22 @@
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Karyawan
+                                            <i class="fas fa-user mr-1"></i>Karyawan
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Department/Position
+                                            <i class="fas fa-briefcase mr-1"></i>Department/Position
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Lokasi
+                                            <i class="fas fa-map-marker-alt mr-1"></i>Lokasi
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status Enrollment
+                                            <i class="fas fa-id-card mr-1"></i>Status Enrollment
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Face ID
+                                            <i class="fas fa-fingerprint mr-1"></i>Face ID
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Aksi
+                                            <i class="fas fa-cog mr-1"></i>Aksi
                                         </th>
                                     </tr>
                                 </thead>
@@ -300,16 +301,12 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                 @if($employee->user->hasFaceEnrolled())
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                        </svg>
+                                                        <i class="fas fa-check-circle mr-1 text-xs"></i>
                                                         Enrolled
                                                     </span>
                                                 @else
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                                        </svg>
+                                                        <i class="fas fa-times-circle mr-1 text-xs"></i>
                                                         Belum Enrolled
                                                     </span>
                                                 @endif
@@ -328,20 +325,20 @@
                                                     @if($employee->user->hasFaceEnrolled())
                                                         <a href="{{ route('face-enrollment.show', $employee) }}"
                                                            class="text-blue-600 hover:text-blue-900">
-                                                            Test
+                                                            <i class="fas fa-vial mr-1"></i>Test
                                                         </a>
                                                         <button onclick="reenrollEmployee({{ $employee->id }})"
                                                                 class="text-yellow-600 hover:text-yellow-900">
-                                                            Re-enroll
+                                                            <i class="fas fa-sync-alt mr-1"></i>Re-enroll
                                                         </button>
                                                         <button onclick="deleteEnrollment({{ $employee->id }})"
                                                                 class="text-red-600 hover:text-red-900">
-                                                            Delete
+                                                            <i class="fas fa-trash-alt mr-1"></i>Delete
                                                         </button>
                                                     @else
                                                         <a href="{{ route('face-enrollment.show', $employee) }}"
                                                            class="text-green-600 hover:text-green-900 font-medium">
-                                                            Enroll
+                                                            <i class="fas fa-user-plus mr-1"></i>Enroll
                                                         </a>
                                                     @endif
                                                 </div>
@@ -358,9 +355,7 @@
                         </div>
                     @else
                         <div class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
+                            <i class="fas fa-users-slash text-gray-400 text-4xl mb-4"></i>
                             <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada karyawan ditemukan</h3>
                             <p class="mt-1 text-sm text-gray-500">
                                 @if(request()->hasAny(['search', 'enrollment_status', 'department']))
@@ -396,12 +391,8 @@
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div :class="type === 'success' ? 'bg-green-100' : 'bg-red-100'" class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                            <svg x-show="type === 'success'" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <svg x-show="type === 'error'" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <i x-show="type === 'success'" class="fas fa-check text-green-600 text-xl"></i>
+                            <i x-show="type === 'error'" class="fas fa-times text-red-600 text-xl"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" x-text="title"></h3>

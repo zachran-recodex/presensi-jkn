@@ -6,7 +6,7 @@
             </h2>
             <a href="{{ route('face-enrollment.index') }}"
                class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
-                Kembali
+                <i class="fas fa-arrow-left mr-2"></i>Kembali
             </a>
         </div>
     </x-slot>
@@ -17,33 +17,47 @@
             <!-- Employee Info -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Karyawan</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-info-circle mr-2"></i>Informasi Karyawan
+                    </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-3">
                             <div>
-                                <span class="text-sm font-medium text-gray-600">Nama Lengkap:</span>
+                                <span class="text-sm font-medium text-gray-600">
+                                    <i class="fas fa-user mr-1"></i>Nama Lengkap:
+                                </span>
                                 <p class="text-gray-900">{{ $employee->user->name }}</p>
                             </div>
                             <div>
-                                <span class="text-sm font-medium text-gray-600">ID Karyawan:</span>
+                                <span class="text-sm font-medium text-gray-600">
+                                    <i class="fas fa-id-card mr-1"></i>ID Karyawan:
+                                </span>
                                 <p class="text-gray-900">{{ $employee->employee_id }}</p>
                             </div>
                             <div>
-                                <span class="text-sm font-medium text-gray-600">Email:</span>
+                                <span class="text-sm font-medium text-gray-600">
+                                    <i class="fas fa-envelope mr-1"></i>Email:
+                                </span>
                                 <p class="text-gray-900">{{ $employee->user->email }}</p>
                             </div>
                         </div>
                         <div class="space-y-3">
                             <div>
-                                <span class="text-sm font-medium text-gray-600">Jabatan:</span>
+                                <span class="text-sm font-medium text-gray-600">
+                                    <i class="fas fa-briefcase mr-1"></i>Jabatan:
+                                </span>
                                 <p class="text-gray-900">{{ $employee->position }}</p>
                             </div>
                             <div>
-                                <span class="text-sm font-medium text-gray-600">Department:</span>
+                                <span class="text-sm font-medium text-gray-600">
+                                    <i class="fas fa-building mr-1"></i>Department:
+                                </span>
                                 <p class="text-gray-900">{{ $employee->department ?: 'No Department' }}</p>
                             </div>
                             <div>
-                                <span class="text-sm font-medium text-gray-600">Lokasi Kerja:</span>
+                                <span class="text-sm font-medium text-gray-600">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>Lokasi Kerja:
+                                </span>
                                 <p class="text-gray-900">{{ $employee->location->name }}</p>
                             </div>
                         </div>
@@ -54,14 +68,14 @@
             <!-- Current Status -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Status Enrollment</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-clipboard-check mr-2"></i>Status Enrollment
+                    </h3>
 
                     @if($employee->user->hasFaceEnrolled())
                         <div class="bg-green-50 border border-green-200 rounded-md p-4">
                             <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle text-green-400 mr-3 text-xl"></i>
                                 <div class="flex-1">
                                     <p class="text-green-800 font-medium">Wajah Sudah Terdaftar</p>
                                     <p class="text-green-700 text-sm">Face ID: {{ $employee->user->face_id }}</p>
@@ -72,9 +86,7 @@
                     @else
                         <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
                             <div class="flex items-center">
-                                <svg class="h-5 w-5 text-yellow-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                </svg>
+                                <i class="fas fa-exclamation-triangle text-yellow-400 mr-3 text-xl"></i>
                                 <div>
                                     <p class="text-yellow-800 font-medium">Wajah Belum Terdaftar</p>
                                     <p class="text-yellow-700 text-sm">Karyawan belum dapat melakukan presensi. Lakukan enrollment terlebih dahulu.</p>
@@ -90,18 +102,16 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900 mb-6">
                         @if($employee->user->hasFaceEnrolled())
-                            Test Verifikasi Wajah
+                            <i class="fas fa-user-check mr-2"></i>Test Verifikasi Wajah
                         @else
-                            Enrollment Wajah
+                            <i class="fas fa-user-plus mr-2"></i>Enrollment Wajah
                         @endif
                     </h3>
 
                     <!-- Instructions -->
                     <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
                         <div class="flex">
-                            <svg class="h-5 w-5 text-blue-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <i class="fas fa-info-circle text-blue-400 mr-2 mt-0.5 text-xl"></i>
                             <div>
                                 <p class="text-blue-800 font-medium">Instruksi:</p>
                                 <ul class="text-blue-700 text-sm mt-1 space-y-1 list-disc list-inside">
@@ -118,7 +128,9 @@
                     <!-- Camera Section -->
                     <div class="space-y-6">
                         <div class="border rounded-lg p-4">
-                            <h4 class="font-semibold text-lg mb-4">Capture Foto Wajah</h4>
+                            <h4 class="font-semibold text-lg mb-4">
+                                <i class="fas fa-camera mr-2"></i>Capture Foto Wajah
+                            </h4>
 
                             <div class="relative">
                                 <!-- Video Preview -->
@@ -141,7 +153,7 @@
                                 <!-- Camera Loading -->
                                 <div x-show="!cameraReady && !cameraError" class="w-full max-w-md mx-auto h-64 bg-gray-100 rounded-lg flex items-center justify-center">
                                     <div class="text-center">
-                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                                        <i class="fas fa-spinner fa-spin text-blue-600 text-3xl mb-2"></i>
                                         <p class="text-gray-600">Mengaktifkan kamera...</p>
                                     </div>
                                 </div>
@@ -149,16 +161,14 @@
                                 <!-- Camera Error -->
                                 <div x-show="cameraError" class="w-full max-w-md mx-auto h-64 bg-red-50 rounded-lg flex items-center justify-center">
                                     <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-red-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                        </svg>
+                                        <i class="fas fa-exclamation-triangle text-red-400 text-3xl mb-2"></i>
                                         <p class="text-red-600 font-medium">Gagal mengakses kamera</p>
                                         <p class="text-sm text-red-500 mt-1" x-text="cameraErrorMessage"></p>
                                         <button
                                             @click="initCamera()"
                                             class="mt-2 bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700"
                                         >
-                                            Coba Lagi
+                                            <i class="fas fa-sync-alt mr-1"></i>Coba Lagi
                                         </button>
                                     </div>
                                 </div>
@@ -174,10 +184,7 @@
                                     x-show="cameraReady && !photoTaken"
                                     class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
                                 >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
+                                    <i class="fas fa-camera mr-1"></i>
                                     <span>Ambil Foto</span>
                                 </button>
 
@@ -186,9 +193,7 @@
                                     x-show="photoTaken"
                                     class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2"
                                 >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                    </svg>
+                                    <i class="fas fa-redo mr-1"></i>
                                     <span>Ambil Ulang</span>
                                 </button>
                             </div>
@@ -199,7 +204,9 @@
                             @if($employee->user->hasFaceEnrolled())
                                 <!-- Test Verification -->
                                 <div class="space-y-4">
-                                    <h4 class="font-semibold text-lg">Test Verifikasi</h4>
+                                    <h4 class="font-semibold text-lg">
+                                        <i class="fas fa-vial mr-2"></i>Test Verifikasi
+                                    </h4>
                                     <p class="text-sm text-gray-600">
                                         Gunakan foto yang diambil untuk menguji apakah sistem dapat mengenali wajah yang sudah terdaftar.
                                     </p>
@@ -210,10 +217,8 @@
                                             :disabled="!photoTaken || processing"
                                             class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                         >
-                                            <svg x-show="!processing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <div x-show="processing" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            <i x-show="!processing" class="fas fa-check-circle mr-1"></i>
+                                            <i x-show="processing" class="fas fa-spinner fa-spin mr-1"></i>
                                             <span x-text="processing ? 'Testing...' : 'Test Verifikasi'"></span>
                                         </button>
 
@@ -221,9 +226,7 @@
                                             @click="showReenrollConfirm = true"
                                             class="flex-1 bg-yellow-600 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 flex items-center justify-center space-x-2"
                                         >
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                            </svg>
+                                            <i class="fas fa-sync-alt mr-1"></i>
                                             <span>Re-enrollment</span>
                                         </button>
 
@@ -231,9 +234,7 @@
                                             @click="showDeleteConfirm = true"
                                             class="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 flex items-center justify-center space-x-2"
                                         >
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
+                                            <i class="fas fa-trash-alt mr-1"></i>
                                             <span>Hapus Enrollment</span>
                                         </button>
                                     </div>
@@ -241,7 +242,9 @@
                             @else
                                 <!-- New Enrollment -->
                                 <div class="space-y-4">
-                                    <h4 class="font-semibold text-lg">Enrollment Wajah Baru</h4>
+                                    <h4 class="font-semibold text-lg">
+                                        <i class="fas fa-user-plus mr-2"></i>Enrollment Wajah Baru
+                                    </h4>
                                     <p class="text-sm text-gray-600">
                                         Pastikan foto wajah sudah diambil dengan baik, lalu centang konfirmasi untuk memulai proses enrollment.
                                     </p>
@@ -263,10 +266,8 @@
                                         :disabled="!photoTaken || !confirmEnrollment || processing"
                                         class="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                     >
-                                        <svg x-show="!processing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                        </svg>
-                                        <div x-show="processing" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                        <i x-show="!processing" class="fas fa-plus-circle mr-1"></i>
+                                        <i x-show="processing" class="fas fa-spinner fa-spin mr-1"></i>
                                         <span x-text="processing ? 'Processing Enrollment...' : 'Mulai Enrollment'"></span>
                                     </button>
                                 </div>
@@ -275,7 +276,9 @@
 
                         <!-- Requirements Checklist -->
                         <div class="bg-gray-50 rounded-lg p-4">
-                            <h5 class="font-medium text-gray-900 mb-3">Checklist Requirements</h5>
+                            <h5 class="font-medium text-gray-900 mb-3">
+                                <i class="fas fa-clipboard-list mr-2"></i>Checklist Requirements
+                            </h5>
                             <div class="space-y-2 text-sm">
                                 <div class="flex items-center space-x-2">
                                     <div :class="cameraReady ? 'bg-green-500' : 'bg-gray-300'" class="w-4 h-4 rounded-full"></div>
@@ -319,9 +322,7 @@
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div class="bg-yellow-100 mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                            </svg>
+                            <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Re-enrollment</h3>
@@ -338,7 +339,7 @@
                     <button @click="submitReenrollment(); showReenrollConfirm = false"
                             type="button"
                             class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-600 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Ya, Re-enroll
+                        <i class="fas fa-sync-alt mr-2"></i>Ya, Re-enroll
                     </button>
                     <button @click="showReenrollConfirm = false"
                             type="button"
@@ -370,9 +371,7 @@
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div class="bg-red-100 mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                            </svg>
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Hapus Enrollment</h3>
@@ -389,7 +388,7 @@
                     <button @click="submitDeletion(); showDeleteConfirm = false"
                             type="button"
                             class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Ya, Hapus
+                        <i class="fas fa-trash-alt mr-2"></i>Ya, Hapus
                     </button>
                     <button @click="showDeleteConfirm = false"
                             type="button"
@@ -421,12 +420,8 @@
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
                         <div :class="type === 'success' ? 'bg-green-100' : 'bg-red-100'" class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                            <svg x-show="type === 'success'" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <svg x-show="type === 'error'" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <i x-show="type === 'success'" class="fas fa-check text-green-600 text-xl"></i>
+                            <i x-show="type === 'error'" class="fas fa-times text-red-600 text-xl"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" x-text="title"></h3>

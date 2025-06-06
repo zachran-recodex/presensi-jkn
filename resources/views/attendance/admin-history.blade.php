@@ -14,9 +14,7 @@
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
+                                <i class="fas fa-users text-gray-400 text-lg"></i>
                             </div>
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
@@ -32,9 +30,7 @@
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle text-green-400 text-lg"></i>
                             </div>
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
@@ -52,9 +48,7 @@
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                                <i class="fas fa-times-circle text-red-400 text-lg"></i>
                             </div>
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
@@ -72,9 +66,7 @@
                     <div class="p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-clock text-yellow-400 text-lg"></i>
                             </div>
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
@@ -189,7 +181,7 @@
                             @if($attendances->total() > 0)
                                 <button @click="exportData()"
                                         class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm">
-                                    Export CSV
+                                    <i class="fas fa-file-export mr-1"></i>Export CSV
                                 </button>
                             @endif
                         </div>
@@ -253,9 +245,7 @@
                                                 <div class="text-xs text-gray-500">{{ $attendance->attendance_time->format('H:i:s') }}</div>
                                                 @if($attendance->is_late && $attendance->type === 'clock_in')
                                                     <div class="text-xs text-red-600">
-                                                        <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                        </svg>
+                                                        <i class="fas fa-clock mr-1"></i>
                                                         +{{ $attendance->late_minutes }}m
                                                     </div>
                                                 @endif
@@ -268,16 +258,12 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                 @if($attendance->status === 'success')
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                        </svg>
+                                                        <i class="fas fa-check mr-1"></i>
                                                         Berhasil
                                                     </span>
                                                 @elseif($attendance->status === 'failed')
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                                        </svg>
+                                                        <i class="fas fa-times mr-1"></i>
                                                         Gagal
                                                     </span>
                                                     @if($attendance->failure_reason)
@@ -287,10 +273,7 @@
                                                     @endif
                                                 @else
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                        <svg class="w-3 h-3 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                        </svg>
+                                                        <i class="fas fa-spinner fa-spin mr-1"></i>
                                                         Pending
                                                     </span>
                                                 @endif
@@ -298,10 +281,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 @if($attendance->location)
                                                     <div class="flex items-center">
-                                                        <svg class="w-4 h-4 mr-1 {{ $attendance->is_valid_location ? 'text-green-500' : 'text-red-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                        </svg>
+                                                        <i class="fas fa-map-marker-alt mr-1 {{ $attendance->is_valid_location ? 'text-green-500' : 'text-red-500' }}"></i>
                                                         <div>
                                                             <div class="font-medium">{{ $attendance->location->name }}</div>
                                                             <div class="text-xs text-gray-500">
@@ -334,9 +314,7 @@
                                                 @if($attendance->photo_path)
                                                     <button @click="showPhoto('{{ route('attendance.photo', $attendance) }}')"
                                                             class="text-blue-600 hover:text-blue-900">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                        </svg>
+                                                        <i class="fas fa-image text-lg"></i>
                                                     </button>
                                                 @else
                                                     <span class="text-gray-400">-</span>
@@ -345,12 +323,12 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <button @click="showDetails({{ $attendance->id }})"
                                                         class="text-indigo-600 hover:text-indigo-900 mr-2">
-                                                    Detail
+                                                    <i class="fas fa-info-circle mr-1"></i>Detail
                                                 </button>
                                                 @if($attendance->user->employee)
                                                     <a href="{{ route('reports.employee', $attendance->user->employee) }}"
                                                        class="text-green-600 hover:text-green-900">
-                                                        Laporan
+                                                        <i class="fas fa-file-alt mr-1"></i>Laporan
                                                     </a>
                                                 @endif
                                             </td>
@@ -366,9 +344,7 @@
                         </div>
                     @else
                         <div class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
+                            <i class="fas fa-clipboard-list text-gray-400 text-4xl mb-4"></i>
                             <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data presensi</h3>
                             <p class="mt-1 text-sm text-gray-500">
                                 Tidak ada data presensi yang sesuai dengan filter yang dipilih.
@@ -401,9 +377,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg leading-6 font-medium text-gray-900">Foto Presensi</h3>
                         <button @click="show = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
+                            <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>
                     <div class="text-center">
@@ -435,14 +409,12 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg leading-6 font-medium text-gray-900">Detail Presensi</h3>
                         <button @click="show = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
+                            <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>
 
                     <div x-show="loading" class="text-center py-8">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                        <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
                         <p class="text-gray-600 mt-2">Loading...</p>
                     </div>
 
