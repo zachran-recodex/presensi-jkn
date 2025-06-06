@@ -29,9 +29,9 @@ class AuthServiceProvider extends ServiceProvider
         // Register policies
         $this->registerPolicies();
 
-        // Additional gates can be defined here if needed
-        // Gate::define('manage-system', function ($user) {
-        //     return $user->isAdmin();
-        // });
+        // Define admin gate for authorization
+        \Illuminate\Support\Facades\Gate::define('admin', function ($user) {
+            return $user->isAdmin();
+        });
     }
 }
