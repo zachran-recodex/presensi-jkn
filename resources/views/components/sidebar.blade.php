@@ -38,7 +38,7 @@
     <!-- Navigation -->
     <nav class="mt-8 flex-1 px-2 space-y-1">
         <!-- Dashboard -->
-        <a href="{{ route('dashboard') }}"
+        <a href="{{ route('index') }}"
            class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} transition-colors duration-200">
             <i class="fas fa-tachometer-alt mr-3 text-lg {{ request()->routeIs('dashboard') ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-500' }}"></i>
             Dashboard

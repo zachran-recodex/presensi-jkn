@@ -12,7 +12,7 @@
                 <!-- Breadcrumb / Current Page -->
                 <div class="hidden sm:flex items-center">
                     <div class="flex items-center space-x-2 text-sm text-gray-500">
-                        <a href="{{ route('dashboard') }}" class="hover:text-gray-700 transition-colors duration-200">
+                        <a href="{{ route('index') }}" class="hover:text-gray-700 transition-colors duration-200">
                             <i class="fas fa-home"></i>
                         </a>
                         <i class="fas fa-chevron-right text-xs"></i>
