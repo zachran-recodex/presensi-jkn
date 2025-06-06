@@ -5,15 +5,6 @@
         </h2>
     </x-slot>
 
-    @section('header-actions')
-        <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
-            <i class="fas fa-plus mr-2"></i> Tambah Karyawan
-        </a>
-        <a href="{{ route('employees.export') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150">
-            <i class="fas fa-file-export mr-2"></i> Export CSV
-        </a>
-    @endsection
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Filters -->
@@ -50,7 +41,13 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end">
+                        <div class="flex gap-4 justify-end">
+                            <a href="{{ route('employees.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                <i class="fas fa-plus mr-2"></i> Tambah Karyawan
+                            </a>
+                            <a href="{{ route('employees.export') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                <i class="fas fa-file-export mr-2"></i> Export CSV
+                            </a>
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
                                 <i class="fas fa-search mr-2"></i> Filter
                             </button>
