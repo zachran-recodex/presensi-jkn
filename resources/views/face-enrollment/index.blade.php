@@ -250,22 +250,22 @@
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <i class="fas fa-user mr-1"></i>Karyawan
+                                            Karyawan
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <i class="fas fa-briefcase mr-1"></i>Department/Position
+                                            Department/Position
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <i class="fas fa-map-marker-alt mr-1"></i>Lokasi
+                                            Lokasi
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <i class="fas fa-id-card mr-1"></i>Status Enrollment
+                                            Status Enrollment
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <i class="fas fa-fingerprint mr-1"></i>Face ID
+                                            Face ID
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            <i class="fas fa-cog mr-1"></i>Aksi
+                                        <th scope="col" class="px-6 py-3 text-centers text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Aksi
                                         </th>
                                     </tr>
                                 </thead>
