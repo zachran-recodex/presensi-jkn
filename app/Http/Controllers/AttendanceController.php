@@ -83,7 +83,7 @@ class AttendanceController extends Controller
         $isCurrentlyLate = !$employee->is_flexible_time && $now->greaterThan($workStartTime);
         $lateMinutes = $isCurrentlyLate ? $now->diffInMinutes($workStartTime) : 0;
 
-        return view('attendance.form', compact(
+        return view('attendance.index', compact(
             'employee',
             'todayClockIn',
             'todayClockOut',
