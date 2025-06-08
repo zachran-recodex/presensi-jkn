@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Employee;
 use App\Models\Location;
+use App\Http\Requests\StoreEmployeeRequest;
+use App\Http\Requests\UpdateEmployeeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class EmployeeController extends Controller
 {
@@ -19,38 +19,45 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Display list of employees
+     * Display list of employees with sorting
      */
     public function index(Request $request)
     {
-        $query = Employee::with(['user', 'location'])
-            ->orderBy('created_at', 'desc');
+        $query = Employee::with(['user', 'location']);
 
-        // Search filter
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->whereHas('user', function($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
-            })->orWhere('employee_id', 'like', '%' . $search . '%')
-                ->orWhere('position', 'like', '%' . $search . '%');
-        }
+        // Sorting
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
 
-        // Status filter
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
+        // Validate sort fields
+        $allowedSortFields = [
+            'created_at', 'employee_id', 'position', 'department',
+            'join_date', 'status', 'user.name', 'location.name'
+        ];
 
-        // Department filter
-        if ($request->has('department') && $request->department) {
-            $query->where('department', $request->department);
+        if (in_array($sortField, $allowedSortFields)) {
+            if (str_contains($sortField, '.')) {
+                // Handle relationship sorting
+                $parts = explode('.', $sortField);
+                $relation = $parts[0];
+                $field = $parts[1];
+                $query->join($relation === 'user' ? 'users' : 'locations',
+                    $relation === 'user' ? 'employees.user_id' : 'employees.location_id',
+                    '=',
+                    $relation === 'user' ? 'users.id' : 'locations.id')
+                    ->orderBy($relation === 'user' ? "users.{$field}" : "locations.{$field}", $sortDirection)
+                    ->select('employees.*');
+            } else {
+                $query->orderBy($sortField, $sortDirection);
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
         }
 
         $employees = $query->paginate(20);
         $locations = Location::active()->get();
-        $departments = Employee::distinct()->pluck('department')->filter();
 
-        return view('employees.index', compact('employees', 'locations', 'departments'));
+        return view('employees.index', compact('employees', 'locations', 'sortField', 'sortDirection'));
     }
 
     /**
@@ -65,32 +72,8 @@ class EmployeeController extends Controller
     /**
      * Store new employee
      */
-    public function store(Request $request)
+    public function store(StoreEmployeeRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255|unique:users',
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'employee_id' => 'required|string|max:50|unique:employees',
-            'phone' => 'nullable|string|max:20',
-            'position' => 'required|string|max:100',
-            'department' => 'nullable|string|max:100',
-            'location_id' => 'required|exists:locations,id',
-            'join_date' => 'required|date',
-            'work_start_time' => 'required|date_format:H:i',
-            'work_end_time' => 'required|date_format:H:i|after:work_start_time',
-            'is_flexible_time' => 'boolean',
-            'status' => 'required|in:active,inactive',
-            'notes' => 'nullable|string|max:1000'
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
         try {
             // Create user account
             $user = User::create([
@@ -160,48 +143,8 @@ class EmployeeController extends Controller
     /**
      * Update employee
      */
-    public function update(Request $request, Employee $employee)
+    public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
-        $validator = Validator::make($request->all(), [
-            'username' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('users')->ignore($employee->user_id)
-            ],
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($employee->user_id)
-            ],
-            'employee_id' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('employees')->ignore($employee->id)
-            ],
-            'phone' => 'nullable|string|max:20',
-            'position' => 'required|string|max:100',
-            'department' => 'nullable|string|max:100',
-            'location_id' => 'required|exists:locations,id',
-            'join_date' => 'required|date',
-            'work_start_time' => 'required|date_format:H:i',
-            'work_end_time' => 'required|date_format:H:i|after:work_start_time',
-            'is_flexible_time' => 'boolean',
-            'status' => 'required|in:active,inactive,terminated',
-            'notes' => 'nullable|string|max:1000',
-            'password' => 'nullable|string|min:8|confirmed'
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
         try {
             // Update user account
             $userData = [
@@ -277,97 +220,12 @@ class EmployeeController extends Controller
 
             $message = $isActive ? 'Karyawan berhasil diaktifkan.' : 'Karyawan berhasil dinonaktifkan.';
 
-            return response()->json([
-                'success' => true,
-                'message' => $message,
-                'new_status' => $newStatus
-            ]);
+            return redirect()->back()->with('success', $message);
 
         } catch (\Exception $e) {
             Log::error('Employee status toggle error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengubah status karyawan.'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'Gagal mengubah status karyawan.');
         }
-    }
-
-    /**
-     * Export employees data
-     */
-    public function export(Request $request)
-    {
-        $query = Employee::with(['user', 'location']);
-
-        // Apply same filters as index
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->whereHas('user', function($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
-            })->orWhere('employee_id', 'like', '%' . $search . '%')
-                ->orWhere('position', 'like', '%' . $search . '%');
-        }
-
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->has('department') && $request->department) {
-            $query->where('department', $request->department);
-        }
-
-        $employees = $query->get();
-
-        // Simple CSV export
-        $filename = 'employees_' . now()->format('Y-m-d_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        $callback = function() use ($employees) {
-            $file = fopen('php://output', 'w');
-
-            // CSV headers
-            fputcsv($file, [
-                'ID Karyawan',
-                'Username',
-                'Nama',
-                'Email',
-                'Telepon',
-                'Jabatan',
-                'Departemen',
-                'Lokasi',
-                'Tanggal Bergabung',
-                'Jam Masuk',
-                'Jam Pulang',
-                'Jam Fleksibel',
-                'Status'
-            ]);
-
-            // Data rows
-            foreach ($employees as $employee) {
-                fputcsv($file, [
-                    $employee->employee_id,
-                    $employee->user->username,
-                    $employee->user->name,
-                    $employee->user->email,
-                    $employee->phone,
-                    $employee->position,
-                    $employee->department,
-                    $employee->location->name,
-                    $employee->join_date->format('d/m/Y'),
-                    $employee->work_start_time->format('H:i'),
-                    $employee->work_end_time->format('H:i'),
-                    $employee->is_flexible_time ? 'Ya' : 'Tidak',
-                    ucfirst($employee->status)
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
     }
 }

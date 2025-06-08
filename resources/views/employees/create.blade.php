@@ -1,101 +1,159 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tambah Karyawan Baru') }}
-        </h2>
-    </x-slot>
-
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+
+            <!-- Breadcrumb -->
+            <div class="mb-6">
+                <nav class="flex" aria-label="Breadcrumb">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                        <li class="inline-flex items-center">
+                            <a href="{{ route('employees.index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                                <i class="fas fa-users mr-2"></i>
+                                Karyawan
+                            </a>
+                        </li>
+                        <li aria-current="page">
+                            <div class="flex items-center">
+                                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                <span class="text-sm font-medium text-gray-500">Tambah Karyawan</span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Form -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <form method="POST" action="{{ route('employees.store') }}" class="space-y-6">
+                    <form action="{{ route('employees.store') }}" method="POST" class="space-y-6">
                         @csrf
 
-                        <!-- Session Status -->
-                        <x-auth-session-status class="mb-4" :status="session('status')" />
-
-                        <!-- Validation Errors -->
-                        @if ($errors->any())
-                            <div class="mb-4">
-                                <div class="font-medium text-red-600">
-                                    {{ __('Whoops! Something went wrong.') }}
+                        <!-- Account Information -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Akun</h3>
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                <div>
+                                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                                    <input type="text"
+                                           name="username"
+                                           id="username"
+                                           value="{{ old('username') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('username') border-red-300 @enderror"
+                                           required>
+                                    @error('username')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <ul class="mt-3 list-disc list-inside text-sm text-red-600">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
-                        <div class="bg-blue-50 p-4 rounded-md mb-6">
-                            <h3 class="text-lg font-medium text-blue-800 mb-2">Informasi Akun</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Username -->
                                 <div>
-                                    <x-input-label for="username" :value="__('Username')" />
-                                    <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autofocus />
+                                    <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                                    <input type="text"
+                                           name="name"
+                                           id="name"
+                                           value="{{ old('name') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-300 @enderror"
+                                           required>
+                                    @error('name')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Name -->
                                 <div>
-                                    <x-input-label for="name" :value="__('Nama Lengkap')" />
-                                    <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required />
+                                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                    <input type="email"
+                                           name="email"
+                                           id="email"
+                                           value="{{ old('email') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-300 @enderror"
+                                           required>
+                                    @error('email')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Email -->
                                 <div>
-                                    <x-input-label for="email" :value="__('Email')" />
-                                    <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
+                                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                                    <input type="password"
+                                           name="password"
+                                           id="password"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('password') border-red-300 @enderror"
+                                           required>
+                                    @error('password')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Password -->
-                                <div>
-                                    <x-input-label for="password" :value="__('Password')" />
-                                    <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-                                </div>
-
-                                <!-- Confirm Password -->
-                                <div>
-                                    <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" />
-                                    <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
+                                <div class="sm:col-span-1">
+                                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+                                    <input type="password"
+                                           name="password_confirmation"
+                                           id="password_confirmation"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                           required>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-green-50 p-4 rounded-md mb-6">
-                            <h3 class="text-lg font-medium text-green-800 mb-2">Informasi Karyawan</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Employee ID -->
+                        <!-- Employee Information -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Karyawan</h3>
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div>
-                                    <x-input-label for="employee_id" :value="__('ID Karyawan')" />
-                                    <x-text-input id="employee_id" class="block mt-1 w-full" type="text" name="employee_id" :value="old('employee_id')" required />
+                                    <label for="employee_id" class="block text-sm font-medium text-gray-700">ID Karyawan</label>
+                                    <input type="text"
+                                           name="employee_id"
+                                           id="employee_id"
+                                           value="{{ old('employee_id') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('employee_id') border-red-300 @enderror"
+                                           required>
+                                    @error('employee_id')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Phone -->
                                 <div>
-                                    <x-input-label for="phone" :value="__('Nomor Telepon')" />
-                                    <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" />
+                                    <label for="phone" class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+                                    <input type="text"
+                                           name="phone"
+                                           id="phone"
+                                           value="{{ old('phone') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('phone') border-red-300 @enderror">
+                                    @error('phone')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Position -->
                                 <div>
-                                    <x-input-label for="position" :value="__('Jabatan')" />
-                                    <x-text-input id="position" class="block mt-1 w-full" type="text" name="position" :value="old('position')" required />
+                                    <label for="position" class="block text-sm font-medium text-gray-700">Jabatan</label>
+                                    <input type="text"
+                                           name="position"
+                                           id="position"
+                                           value="{{ old('position') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('position') border-red-300 @enderror"
+                                           required>
+                                    @error('position')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Department -->
                                 <div>
-                                    <x-input-label for="department" :value="__('Departemen')" />
-                                    <x-text-input id="department" class="block mt-1 w-full" type="text" name="department" :value="old('department')" />
+                                    <label for="department" class="block text-sm font-medium text-gray-700">Departemen</label>
+                                    <input type="text"
+                                           name="department"
+                                           id="department"
+                                           value="{{ old('department') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('department') border-red-300 @enderror">
+                                    @error('department')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Location -->
                                 <div>
-                                    <x-input-label for="location_id" :value="__('Lokasi Kantor')" />
-                                    <select id="location_id" name="location_id" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required>
+                                    <label for="location_id" class="block text-sm font-medium text-gray-700">Lokasi Kerja</label>
+                                    <select name="location_id"
+                                            id="location_id"
+                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('location_id') border-red-300 @enderror"
+                                            required>
                                         <option value="">Pilih Lokasi</option>
                                         @foreach($locations as $location)
                                             <option value="{{ $location->id }}" {{ old('location_id') == $location->id ? 'selected' : '' }}>
@@ -103,66 +161,116 @@
                                             </option>
                                         @endforeach
                                     </select>
+                                    @error('location_id')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Join Date -->
                                 <div>
-                                    <x-input-label for="join_date" :value="__('Tanggal Bergabung')" />
-                                    <x-text-input id="join_date" class="block mt-1 w-full" type="date" name="join_date" :value="old('join_date')" required />
+                                    <label for="join_date" class="block text-sm font-medium text-gray-700">Tanggal Bergabung</label>
+                                    <input type="date"
+                                           name="join_date"
+                                           id="join_date"
+                                           value="{{ old('join_date') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('join_date') border-red-300 @enderror"
+                                           required>
+                                    @error('join_date')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-purple-50 p-4 rounded-md mb-6">
-                            <h3 class="text-lg font-medium text-purple-800 mb-2">Jadwal Kerja</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <!-- Work Start Time -->
+                        <!-- Work Schedule -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Jadwal Kerja</h3>
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                                 <div>
-                                    <x-input-label for="work_start_time" :value="__('Jam Masuk')" />
-                                    <x-text-input id="work_start_time" class="block mt-1 w-full" type="time" name="work_start_time" :value="old('work_start_time')" required />
+                                    <label for="work_start_time" class="block text-sm font-medium text-gray-700">Jam Masuk</label>
+                                    <input type="time"
+                                           name="work_start_time"
+                                           id="work_start_time"
+                                           value="{{ old('work_start_time', '08:00') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('work_start_time') border-red-300 @enderror"
+                                           required>
+                                    @error('work_start_time')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Work End Time -->
                                 <div>
-                                    <x-input-label for="work_end_time" :value="__('Jam Pulang')" />
-                                    <x-text-input id="work_end_time" class="block mt-1 w-full" type="time" name="work_end_time" :value="old('work_end_time')" required />
+                                    <label for="work_end_time" class="block text-sm font-medium text-gray-700">Jam Pulang</label>
+                                    <input type="time"
+                                           name="work_end_time"
+                                           id="work_end_time"
+                                           value="{{ old('work_end_time', '17:00') }}"
+                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('work_end_time') border-red-300 @enderror"
+                                           required>
+                                    @error('work_end_time')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Flexible Time -->
-                                <div class="flex items-center mt-6">
-                                    <input id="is_flexible_time" type="checkbox" name="is_flexible_time" value="1" {{ old('is_flexible_time') ? 'checked' : '' }} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                    <label for="is_flexible_time" class="ml-2 text-sm text-gray-600">{{ __('Jam Kerja Fleksibel') }}</label>
+                                <div class="flex items-center">
+                                    <div class="flex items-center h-5">
+                                        <input type="checkbox"
+                                               name="is_flexible_time"
+                                               id="is_flexible_time"
+                                               value="1"
+                                               {{ old('is_flexible_time') ? 'checked' : '' }}
+                                               class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="is_flexible_time" class="font-medium text-gray-700">Jam Kerja Fleksibel</label>
+                                        <p class="text-gray-500">Karyawan dapat bekerja dengan jam fleksibel</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-gray-50 p-4 rounded-md mb-6">
-                            <h3 class="text-lg font-medium text-gray-800 mb-2">Status & Catatan</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Status -->
+                        <!-- Status and Notes -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Status dan Catatan</h3>
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                 <div>
-                                    <x-input-label for="status" :value="__('Status')" />
-                                    <select id="status" name="status" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required>
-                                        <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Aktif</option>
-                                        <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
+                                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                                    <select name="status"
+                                            id="status"
+                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('status') border-red-300 @enderror"
+                                            required>
+                                        <option value="active" {{ old('status', 'active') === 'active' ? 'selected' : '' }}>Aktif</option>
+                                        <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
                                     </select>
+                                    @error('status')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                <!-- Notes -->
-                                <div class="md:col-span-2">
-                                    <x-input-label for="notes" :value="__('Catatan')" />
-                                    <textarea id="notes" name="notes" rows="3" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">{{ old('notes') }}</textarea>
+                                <div class="sm:col-span-2">
+                                    <label for="notes" class="block text-sm font-medium text-gray-700">Catatan</label>
+                                    <textarea name="notes"
+                                              id="notes"
+                                              rows="3"
+                                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('notes') border-red-300 @enderror"
+                                              placeholder="Catatan tambahan tentang karyawan...">{{ old('notes') }}</textarea>
+                                    @error('notes')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end">
-                            <a href="{{ route('employees.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-400 focus:outline-none focus:border-gray-500 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150 mr-3">
-                                {{ __('Batal') }}
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end space-x-3 pt-6">
+                            <a href="{{ route('employees.index') }}"
+                               class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Batal
                             </a>
-                            <x-primary-button>
-                                {{ __('Simpan') }}
-                            </x-primary-button>
+                            <button type="submit"
+                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fas fa-save mr-2"></i>
+                                Simpan Karyawan
+                            </button>
                         </div>
                     </form>
                 </div>
