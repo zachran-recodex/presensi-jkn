@@ -181,7 +181,7 @@
                         <!-- Submit Button -->
                         <div class="pt-4">
                             <button type="submit"
-                                class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-xl btn-hover-effect shadow-xl">
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl btn-hover-effect shadow-xl">
                                 <i class="fas fa-sign-in-alt mr-2"></i>
                                 {{ __('Masuk') }}
                             </button>
