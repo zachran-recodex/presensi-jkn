@@ -22,9 +22,12 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- Additional CSS -->
+    @stack('styles')
+
     <style>
         .animated-bg {
-            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background: linear-gradient(-45deg, #3b82f6, #1e40af, #2563eb, #1d4ed8);
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
         }
@@ -182,14 +185,6 @@
                                 <i class="fas fa-sign-in-alt mr-2"></i>
                                 {{ __('Masuk') }}
                             </button>
-                        </div>
-
-                        <!-- Additional Links -->
-                        <div class="text-center pt-4 space-y-2">
-                            <a href="#" class="text-white text-opacity-80 hover:text-white text-sm transition-colors duration-300">
-                                <i class="fas fa-key mr-1"></i>
-                                Lupa password?
-                            </a>
                         </div>
                     </form>
                 </div>
