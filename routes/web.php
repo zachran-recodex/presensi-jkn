@@ -116,10 +116,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->name('edit');
         Route::put('/{employee}', [EmployeeController::class, 'update'])->name('update');
         Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('destroy');
-
-        // Additional employee actions
-        Route::post('/{employee}/toggle-status', [EmployeeController::class, 'toggleStatus'])->name('toggle-status');
-        Route::get('/export', [EmployeeController::class, 'export'])->name('export');
+        Route::post('/{employee}', [EmployeeController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     /*
