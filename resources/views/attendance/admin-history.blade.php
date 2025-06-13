@@ -1,8 +1,4 @@
 <x-app-layout>
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        Riwayat Presensi - Admin
-    </h2>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
@@ -176,12 +172,6 @@
                             <div class="text-sm text-gray-600">
                                 Menampilkan {{ $attendances->firstItem() ?? 0 }} - {{ $attendances->lastItem() ?? 0 }} dari {{ $attendances->total() }} record
                             </div>
-                            @if($attendances->total() > 0)
-                                <button @click="exportData()"
-                                        class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm">
-                                    <i class="fas fa-file-export mr-1"></i>Export CSV
-                                </button>
-                            @endif
                         </div>
                     </div>
 
@@ -207,12 +197,6 @@
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Face Recognition
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Foto
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Aksi
                                         </th>
                                     </tr>
                                 </thead>
@@ -308,28 +292,6 @@
                                                     <span class="text-gray-500">-</span>
                                                 @endif
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                @if($attendance->photo_path)
-                                                    <button @click="showPhoto('{{ route('attendance.photo', $attendance) }}')"
-                                                            class="text-blue-600 hover:text-blue-900">
-                                                        <i class="fas fa-image text-lg"></i>
-                                                    </button>
-                                                @else
-                                                    <span class="text-gray-400">-</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <button @click="showDetails({{ $attendance->id }})"
-                                                        class="text-indigo-600 hover:text-indigo-900 mr-2">
-                                                    <i class="fas fa-info-circle mr-1"></i>Detail
-                                                </button>
-                                                @if($attendance->user->employee)
-                                                    <a href="{{ route('reports.employee', $attendance->user->employee) }}"
-                                                       class="text-green-600 hover:text-green-900">
-                                                        <i class="fas fa-file-alt mr-1"></i>Laporan
-                                                    </a>
-                                                @endif
-                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -354,114 +316,8 @@
         </div>
     </div>
 
-    <!-- Photo Modal -->
-    <div x-data="{ show: false, photoUrl: '' }"
-         x-show="show"
-         x-cloak
-         @show-photo.window="show = true; photoUrl = $event.detail.url"
-         class="fixed inset-0 z-50 overflow-y-auto"
-         x-transition:enter="ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0">
-
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div @click="show = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Foto Presensi</h3>
-                        <button @click="show = false" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    <div class="text-center">
-                        <img :src="photoUrl" alt="Foto Presensi" class="max-w-full h-auto rounded-lg">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Modal -->
-    <div x-data="{ show: false, loading: false, attendance: null }"
-         x-show="show"
-         x-cloak
-         @show-details.window="show = true; loadDetails($event.detail.id)"
-         class="fixed inset-0 z-50 overflow-y-auto"
-         x-transition:enter="ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0">
-
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div @click="show = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Detail Presensi</h3>
-                        <button @click="show = false" class="text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-
-                    <div x-show="loading" class="text-center py-8">
-                        <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
-                        <p class="text-gray-600 mt-2">Loading...</p>
-                    </div>
-
-                    <div x-show="!loading && attendance" class="space-y-4">
-                        <!-- Detail content will be loaded here -->
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span class="font-medium text-gray-700">Karyawan:</span>
-                                <span x-text="attendance?.user?.name"></span>
-                            </div>
-                            <div>
-                                <span class="font-medium text-gray-700">Tanggal:</span>
-                                <span x-text="attendance?.attendance_date"></span>
-                            </div>
-                            <div>
-                                <span class="font-medium text-gray-700">IP Address:</span>
-                                <span x-text="attendance?.ip_address"></span>
-                            </div>
-                            <div>
-                                <span class="font-medium text-gray-700">Device:</span>
-                                <span x-text="attendance?.device_info" class="text-xs"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     @push('scripts')
     <script>
-        function showPhoto(url) {
-            window.dispatchEvent(new CustomEvent('show-photo', {
-                detail: { url: url }
-            }));
-        }
-
-        function showDetails(id) {
-            window.dispatchEvent(new CustomEvent('show-details', {
-                detail: { id: id }
-            }));
-        }
-
-        function exportData() {
-            const params = new URLSearchParams(window.location.search);
-            params.set('export', '1');
-            window.location.href = `${window.location.pathname}?${params.toString()}`;
-        }
-
         // Auto-refresh every 30 seconds if on today's data
         @if(!request()->hasAny(['date_from', 'date_to']) || (request('date_from') === today() && request('date_to') === today()))
             setInterval(() => {
