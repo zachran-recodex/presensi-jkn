@@ -201,7 +201,7 @@
                 </div>
             @endif
 
-            <!-- Quick Actions -->
+            <!-- Quick Actions
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Menu Admin</h3>
@@ -245,6 +245,7 @@
                     </div>
                 </div>
             </div>
+            -->
         </div>
     </div>
 

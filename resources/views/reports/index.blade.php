@@ -174,24 +174,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Report Links -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <a href="{{ route('reports.monthly') }}" class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                    <div class="p-6 flex items-center">
-                        <div class="flex-shrink-0 bg-blue-100 rounded-full p-3">
-                            <i class="fas fa-calendar-alt text-blue-600 text-xl"></i>
-                        </div>
-                        <div class="ml-5">
-                            <h3 class="text-lg font-semibold text-gray-900">Laporan Bulanan</h3>
-                            <p class="text-sm text-gray-500">Lihat laporan kehadiran bulanan untuk semua karyawan</p>
-                        </div>
-                        <div class="ml-auto">
-                            <i class="fas fa-chevron-right text-gray-400"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
         </div>
     </div>
 </x-app-layout>
