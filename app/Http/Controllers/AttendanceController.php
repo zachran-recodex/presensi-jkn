@@ -144,14 +144,25 @@ class AttendanceController extends Controller
                 ], 403);
             }
 
-            // Check duplicate attendance
-            if ($this->isDuplicateAttendance($user->id, $type)) {
+            // Check for existing successful attendance
+            if ($this->hasSuccessfulAttendanceToday($user->id, $type)) {
                 $message = $type === 'clock_in' ? 'Anda sudah melakukan clock in hari ini.' : 'Anda sudah melakukan clock out hari ini.';
                 return response()->json([
                     'success' => false,
                     'message' => $message
                 ], 422);
             }
+
+            // Check attempt count - maksimal 3 percobaan per hari
+            $attemptCount = $this->getTodayAttemptCount($user->id, $type);
+            if ($attemptCount >= 3) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Batas maksimal 3 percobaan per hari telah tercapai. Silakan hubungi admin untuk bantuan.'
+                ], 422);
+            }
+
+            $currentAttempt = $attemptCount + 1;
 
             // Validate location
             $locationValidation = $this->validateLocation(
@@ -160,7 +171,7 @@ class AttendanceController extends Controller
                 $employee->location
             );
 
-            // Prepare attendance data
+            // Prepare attendance data with attempt tracking
             $attendanceData = [
                 'user_id' => $user->id,
                 'location_id' => $employee->location_id,
@@ -174,7 +185,9 @@ class AttendanceController extends Controller
                 'device_info' => $request->userAgent(),
                 'ip_address' => $request->ip(),
                 'notes' => $request->notes,
-                'status' => 'pending'
+                'status' => 'pending',
+                'attempt_number' => $currentAttempt,
+                'total_attempts_today' => $currentAttempt
             ];
 
             // Calculate late status for clock_in
@@ -194,27 +207,49 @@ class AttendanceController extends Controller
             $attendanceData['face_recognition_result'] = $faceResult;
             $attendanceData['face_similarity_score'] = $faceResult['similarity'] ?? 0;
 
-            // Determine final status
+            // Determine final status with 3-attempt logic
             $similarityThreshold = config('services.biznet_face.similarity_threshold', 0.75);
             $isFaceValid = ($faceResult['verified'] ?? false) &&
                 ($faceResult['similarity'] ?? 0) >= $similarityThreshold;
 
+            $reasons = [];
+            if (!$isFaceValid) {
+                $reasons[] = 'Verifikasi wajah gagal (similarity: ' .
+                    number_format(($faceResult['similarity'] ?? 0) * 100, 1) . '%)';
+            }
+            if (!$locationValidation['is_valid']) {
+                $reasons[] = 'Lokasi di luar jangkauan kantor (' .
+                    number_format($locationValidation['distance'], 0) . 'm)';
+            }
+
+            // Prepare attempt history
+            $attemptHistory = $this->getAttemptHistory($user->id, $type);
+            $currentAttemptData = [
+                'attempt' => $currentAttempt,
+                'timestamp' => Carbon::now()->toISOString(),
+                'face_valid' => $isFaceValid,
+                'location_valid' => $locationValidation['is_valid'],
+                'face_similarity' => $faceResult['similarity'] ?? 0,
+                'distance' => $locationValidation['distance'],
+                'reasons' => $reasons
+            ];
+            $attemptHistory[] = $currentAttemptData;
+            $attendanceData['attempt_history'] = $attemptHistory;
+
             if ($isFaceValid && $locationValidation['is_valid']) {
+                // Berhasil - hapus percobaan sebelumnya yang gagal
+                $this->deleteFailedAttemptsToday($user->id, $type);
                 $attendanceData['status'] = 'success';
+                $attendanceData['attempt_number'] = $currentAttempt;
             } else {
-                $attendanceData['status'] = 'failed';
-                $reasons = [];
-
-                if (!$isFaceValid) {
-                    $reasons[] = 'Verifikasi wajah gagal (similarity: ' .
-                        number_format(($faceResult['similarity'] ?? 0) * 100, 1) . '%)';
+                // Gagal - cek apakah ini percobaan terakhir
+                if ($currentAttempt >= 3) {
+                    $attendanceData['status'] = 'failed';
+                    $attendanceData['failure_reason'] = 'Gagal setelah 3 percobaan: ' . implode(', ', $reasons);
+                } else {
+                    $attendanceData['status'] = 'pending';
+                    $attendanceData['failure_reason'] = 'Percobaan ' . $currentAttempt . ' gagal: ' . implode(', ', $reasons);
                 }
-                if (!$locationValidation['is_valid']) {
-                    $reasons[] = 'Lokasi di luar jangkauan kantor (' .
-                        number_format($locationValidation['distance'], 0) . 'm)';
-                }
-
-                $attendanceData['failure_reason'] = implode(', ', $reasons);
             }
 
             // Save photo using ImageProcessingService
@@ -234,10 +269,22 @@ class AttendanceController extends Controller
             // Create attendance record
             $attendance = Attendance::create($attendanceData);
 
-            // Prepare response
-            $message = $attendanceData['status'] === 'success'
-                ? ($type === 'clock_in' ? 'Clock in berhasil!' : 'Clock out berhasil!')
-                : 'Presensi gagal: ' . ($attendanceData['failure_reason'] ?? 'Kesalahan tidak diketahui');
+            // Prepare response with attempt information
+            $remainingAttempts = 3 - $currentAttempt;
+            
+            if ($attendanceData['status'] === 'success') {
+                $message = $type === 'clock_in' ? 'Clock in berhasil!' : 'Clock out berhasil!';
+                if ($currentAttempt > 1) {
+                    $message .= ' (Berhasil pada percobaan ke-' . $currentAttempt . ')';
+                }
+            } elseif ($attendanceData['status'] === 'failed') {
+                $message = 'Presensi gagal setelah 3 percobaan. Hubungi admin untuk bantuan.';
+            } else {
+                $message = 'Percobaan ke-' . $currentAttempt . ' gagal: ' . implode(', ', $reasons);
+                if ($remainingAttempts > 0) {
+                    $message .= ' (Sisa ' . $remainingAttempts . ' percobaan)';
+                }
+            }
 
             return response()->json([
                 'success' => $attendanceData['status'] === 'success',
@@ -251,7 +298,10 @@ class AttendanceController extends Controller
                     'similarity_score' => number_format(($faceResult['similarity'] ?? 0) * 100, 1),
                     'is_late' => $attendanceData['is_late'] ?? false,
                     'late_minutes' => $attendanceData['late_minutes'] ?? 0,
-                    'photo_saved' => $photoResult['success'] ?? false
+                    'photo_saved' => $photoResult['success'] ?? false,
+                    'attempt_number' => $currentAttempt,
+                    'remaining_attempts' => $remainingAttempts,
+                    'can_retry' => $remainingAttempts > 0 && $attendanceData['status'] !== 'success'
                 ]
             ]);
 
@@ -270,15 +320,59 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Check for duplicate attendance
+     * Check if user has successful attendance today
      */
-    private function isDuplicateAttendance(int $userId, string $type): bool
+    private function hasSuccessfulAttendanceToday(int $userId, string $type): bool
     {
         return Attendance::where('user_id', $userId)
             ->where('type', $type)
             ->where('attendance_date', Carbon::today())
             ->where('status', 'success')
             ->exists();
+    }
+
+    /**
+     * Get today's attempt count for specific attendance type
+     */
+    private function getTodayAttemptCount(int $userId, string $type): int
+    {
+        return Attendance::where('user_id', $userId)
+            ->where('type', $type)
+            ->where('attendance_date', Carbon::today())
+            ->count();
+    }
+
+    /**
+     * Get attempt history for today
+     */
+    private function getAttemptHistory(int $userId, string $type): array
+    {
+        $existingAttempts = Attendance::where('user_id', $userId)
+            ->where('type', $type)
+            ->where('attendance_date', Carbon::today())
+            ->orderBy('attempt_number')
+            ->get();
+
+        $history = [];
+        foreach ($existingAttempts as $attempt) {
+            if ($attempt->attempt_history) {
+                $history = array_merge($history, json_decode($attempt->attempt_history, true));
+            }
+        }
+
+        return $history;
+    }
+
+    /**
+     * Delete failed attempts for today when user succeeds
+     */
+    private function deleteFailedAttemptsToday(int $userId, string $type): void
+    {
+        Attendance::where('user_id', $userId)
+            ->where('type', $type)
+            ->where('attendance_date', Carbon::today())
+            ->whereIn('status', ['pending', 'failed'])
+            ->delete();
     }
 
     /**

@@ -36,6 +36,9 @@ class Attendance extends Model
         'late_minutes',
         'notes',
         'failure_reason',
+        'attempt_number',
+        'total_attempts_today',
+        'attempt_history',
     ];
 
     /**
@@ -54,6 +57,9 @@ class Attendance extends Model
         'face_similarity_score' => 'decimal:2',
         'is_late' => 'boolean',
         'late_minutes' => 'integer',
+        'attempt_number' => 'integer',
+        'total_attempts_today' => 'integer',
+        'attempt_history' => 'array',
     ];
 
     /**

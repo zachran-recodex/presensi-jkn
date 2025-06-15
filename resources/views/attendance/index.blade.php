@@ -42,6 +42,60 @@
                         </div>
                     </div>
 
+                    <!-- Attempt Status for Failed Attempts -->
+                    @php
+                        $todayFailedAttempts = Auth::user()->attendances()
+                            ->where('attendance_date', today())
+                            ->where('status', '!=', 'success')
+                            ->get()
+                            ->groupBy('type');
+                        
+                        $clockInAttempts = $todayFailedAttempts->get('clock_in', collect())->count();
+                        $clockOutAttempts = $todayFailedAttempts->get('clock_out', collect())->count();
+                    @endphp
+
+                    @if($clockInAttempts > 0 && $canClockIn)
+                        <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-yellow-400 mr-2 mt-0.5"></i>
+                                <div>
+                                    <h3 class="font-semibold text-yellow-900 mb-2">Percobaan Clock In Hari Ini</h3>
+                                    <p class="text-yellow-800 text-sm mb-2">
+                                        Anda sudah mencoba clock in {{ $clockInAttempts }} kali hari ini.
+                                        Sisa percobaan: <span class="font-semibold">{{ 3 - $clockInAttempts }}</span>
+                                    </p>
+                                    @if($clockInAttempts >= 2)
+                                        <p class="text-yellow-700 text-xs">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            Pastikan wajah Anda jelas terlihat dan Anda berada di area kantor sebelum mencoba lagi.
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($clockOutAttempts > 0 && $canClockOut)
+                        <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-yellow-400 mr-2 mt-0.5"></i>
+                                <div>
+                                    <h3 class="font-semibold text-yellow-900 mb-2">Percobaan Clock Out Hari Ini</h3>
+                                    <p class="text-yellow-800 text-sm mb-2">
+                                        Anda sudah mencoba clock out {{ $clockOutAttempts }} kali hari ini.
+                                        Sisa percobaan: <span class="font-semibold">{{ 3 - $clockOutAttempts }}</span>
+                                    </p>
+                                    @if($clockOutAttempts >= 2)
+                                        <p class="text-yellow-700 text-xs">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            Pastikan wajah Anda jelas terlihat dan Anda berada di area kantor sebelum mencoba lagi.
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Today's Attendance Status -->
                     <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                         <h3 class="font-semibold text-lg text-gray-900 mb-3">Status Presensi Hari Ini</h3>
@@ -289,8 +343,13 @@
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
-                        <div :class="type === 'success' ? 'bg-green-100' : 'bg-red-100'" class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+                        <div :class="{
+                            'bg-green-100': type === 'success',
+                            'bg-yellow-100': type === 'warning', 
+                            'bg-red-100': type === 'error'
+                        }" class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
                             <i x-show="type === 'success'" class="fas fa-check text-green-600"></i>
+                            <i x-show="type === 'warning'" class="fas fa-exclamation-triangle text-yellow-600"></i>
                             <i x-show="type === 'error'" class="fas fa-times text-red-600"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -304,9 +363,13 @@
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <button @click="show = false; if(type === 'success') location.reload()"
                             type="button"
-                            :class="type === 'success' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'"
+                            :class="{
+                                'bg-green-600 hover:bg-green-700': type === 'success',
+                                'bg-yellow-600 hover:bg-yellow-700': type === 'warning',
+                                'bg-red-600 hover:bg-red-700': type === 'error'
+                            }"
                             class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
-                        OK
+                        <span x-text="type === 'warning' ? 'Coba Lagi' : 'OK'"></span>
                     </button>
                 </div>
             </div>
@@ -540,6 +603,9 @@
                                 if (result.data.is_late) {
                                     message += `- Status: Terlambat ${result.data.late_minutes} menit\n`;
                                 }
+                                if (result.data.attempt_number && result.data.attempt_number > 1) {
+                                    message += `- Berhasil pada percobaan ke-${result.data.attempt_number}\n`;
+                                }
                             }
 
                             this.$dispatch('attendance-result', {
@@ -548,10 +614,22 @@
                                 message: message
                             });
                         } else {
+                            let message = result.message;
+                            if (result.data && result.data.can_retry) {
+                                message += `\n\n`;
+                                message += `Percobaan: ${result.data.attempt_number}/3\n`;
+                                message += `Sisa percobaan: ${result.data.remaining_attempts}\n\n`;
+                                message += 'Tips untuk berhasil:\n';
+                                message += '• Pastikan wajah jelas terlihat tanpa masker\n';
+                                message += '• Pastikan pencahayaan cukup\n';
+                                message += '• Pastikan berada di area kantor\n';
+                                message += '• Pegang ponsel dengan stabil';
+                            }
+
                             this.$dispatch('attendance-result', {
-                                type: 'error',
-                                title: 'Presensi Gagal!',
-                                message: result.message
+                                type: result.data && result.data.can_retry ? 'warning' : 'error',
+                                title: result.data && result.data.can_retry ? 'Percobaan Gagal!' : 'Presensi Gagal!',
+                                message: message
                             });
                         }
                     } catch (error) {
